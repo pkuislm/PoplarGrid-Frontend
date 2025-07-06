@@ -252,6 +252,7 @@ export interface SyncedProject {
   typesetter?: string // 嵌字
   reviewer?: string // 审核
   publishStatus: 'not_published' | 'published' | 'pending' // 发布状态
+  workStatus: number,
   lastUpdated: string // 上次更新日期
   notes?: string // 备注
   members: SyncedProjectMember[] // 项目成员

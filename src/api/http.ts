@@ -132,12 +132,13 @@ const generateTimeBasedMockData = () => {
 const generateSyncedProjectsMockData = () => {
   const roles = ['image_source', 'artist', 'translator', 'proofreader', 'typesetter', 'reviewer']
   const publishStatuses = ['not_published', 'published', 'pending']
+  const workStatuses = [75, 27, 78, 0, 63]
   const projectTypes = ['C105', 'C104', '例大祭', '一般向', '成人向']
   
   const projects = []
   for (let i = 1; i <= 15; i++) {
     const serialNumber = i
-    const projectName = `项目${i}`
+    const projectName = `捕まえた女盗賊を薬でメス堕ちさせて孕ませたらめっちゃ懐かれた${i}`
     const originalName = `【${serialNumber}】${projectName}`
     
     // 随机生成成员
@@ -171,6 +172,7 @@ const generateSyncedProjectsMockData = () => {
       typesetter: getAssignedUsers('typesetter'),
       reviewer: getAssignedUsers('reviewer'),
       publishStatus: publishStatuses[Math.floor(Math.random() * publishStatuses.length)],
+      workStatus: workStatuses[Math.floor(Math.random() * workStatuses.length)],
       lastUpdated: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
       notes: Math.random() > 0.7 ? `项目${i}的备注信息` : undefined,
       members,
@@ -538,35 +540,35 @@ export const mockApi = {
     return [
       {
         id: '1',
-        name: 'C105',
+        name: '未分组',
         color: '#3b82f6',
-        description: 'Comic Market 105',
+        description: '未分组',
         createdAt: '2024-01-01T00:00:00Z'
       },
       {
         id: '2',
-        name: 'C104',
+        name: 'R18',
         color: '#10b981',
-        description: 'Comic Market 104',
+        description: 'R18',
         createdAt: '2024-01-01T00:00:00Z'
       },
       {
         id: '3',
-        name: '例大祭',
+        name: 'C105',
         color: '#f59e0b',
-        description: '例大祭相关项目',
+        description: 'C105',
         createdAt: '2024-01-01T00:00:00Z'
       },
       {
         id: '4',
-        name: '一般向',
+        name: 'C104',
         color: '#8b5cf6',
-        description: '一般向作品',
+        description: 'C104',
         createdAt: '2024-01-01T00:00:00Z'
       },
       {
         id: '5',
-        name: '成人向',
+        name: 'COMIC专栏（C103 + VeryLongPlaceholder123456）',
         color: '#ef4444',
         description: '成人向作品',
         createdAt: '2024-01-01T00:00:00Z'
