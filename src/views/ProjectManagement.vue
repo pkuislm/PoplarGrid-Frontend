@@ -212,63 +212,65 @@
           <!-- 展开按钮 -->
           <el-table-column type="expand">
             <template #default="scope">
-              <div class="px-6 py-4">
-                <el-descriptions class="margin-top" :column="2" border>
-                  <el-descriptions-item>
-                    <template #label>
-                      <div class="cell-item">
-                        <el-icon><Aim /></el-icon>
-                        图源
-                      </div>
-                    </template>
-                    {{ scope.row.imageSource || "暂无" }}
-                  </el-descriptions-item>
-                  <el-descriptions-item>
-                    <template #label>
-                      <div class="cell-item">
-                        <el-icon><MagicStick /></el-icon>
-                        美工
-                      </div>
-                    </template>
-                    {{ scope.row.artist || "暂无" }}
-                  </el-descriptions-item>
-                  <el-descriptions-item>
-                    <template #label>
-                      <div class="cell-item">
-                        <el-icon><EditPen /></el-icon>
-                        翻译
-                      </div>
-                    </template>
-                    {{ scope.row.translator || "暂无"}}
-                  </el-descriptions-item>
-                  <el-descriptions-item>
-                    <template #label>
-                      <div class="cell-item">
-                        <el-icon><DocumentChecked /></el-icon>
-                        校对
-                      </div>
-                    </template>
-                    {{ scope.row.proofreader || "暂无" }}
-                  </el-descriptions-item>
-                  <el-descriptions-item>
-                    <template #label>
-                      <div class="cell-item">
-                        <el-icon><Stamp /></el-icon>
-                        嵌字
-                      </div>
-                    </template>
-                    {{ scope.row.typesetter || "暂无" }}
-                  </el-descriptions-item>
-                  <el-descriptions-item>
-                    <template #label>
-                      <div class="cell-item">
-                        <el-icon><CircleCheck /></el-icon>
-                        审核
-                      </div>
-                    </template>
-                    {{ scope.row.reviewer || "暂无" }}
-                  </el-descriptions-item>
-                </el-descriptions>
+              <div class="expand-content">
+                <div class="expand-inner">
+                  <el-descriptions class="margin-top" :column="2" border>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <el-icon><Aim /></el-icon>
+                          图源
+                        </div>
+                      </template>
+                      {{ scope.row.imageSource || "暂无" }}
+                    </el-descriptions-item>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <el-icon><MagicStick /></el-icon>
+                          美工
+                        </div>
+                      </template>
+                      {{ scope.row.artist || "暂无" }}
+                    </el-descriptions-item>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <el-icon><EditPen /></el-icon>
+                          翻译
+                        </div>
+                      </template>
+                      {{ scope.row.translator || "暂无" }}
+                    </el-descriptions-item>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <el-icon><DocumentChecked /></el-icon>
+                          校对
+                        </div>
+                      </template>
+                      {{ scope.row.proofreader || "暂无" }}
+                    </el-descriptions-item>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <el-icon><Stamp /></el-icon>
+                          嵌字
+                        </div>
+                      </template>
+                      {{ scope.row.typesetter || "暂无" }}
+                    </el-descriptions-item>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <el-icon><CircleCheck /></el-icon>
+                          审核
+                        </div>
+                      </template>
+                      {{ scope.row.reviewer || "暂无" }}
+                    </el-descriptions-item>
+                  </el-descriptions>
+                </div>
               </div>
             </template>
           </el-table-column>
@@ -373,6 +375,12 @@ import {
   PriceTag,
   Refresh,
   Download,
+  Aim,
+  MagicStick,
+  EditPen,
+  DocumentChecked,
+  Stamp,
+  CircleCheck,
 } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useSyncStore } from "@/stores/sync";
@@ -391,8 +399,6 @@ const showTagManager = ref(false);
 const showCreateTag = ref(false);
 const creating = ref(false);
 const tagFormRef = ref<FormInstance>();
-
-const expandedProjectId = ref<string | null>(null);
 
 const tagForm = reactive({
   name: "",
@@ -465,10 +471,6 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const toggleDetails = (id: string) => {
-  expandedProjectId.value = expandedProjectId.value === id ? null : id;
-};
-
 const getProgressIcon = (status: number, index: number) => {
   console.log(status);
   const trit = status.toString(3).padStart(4, "0")[index];
@@ -521,7 +523,7 @@ const handleExport = async () => {
 const navigateToProject = (project: any) => {
   if (project.externalProjectId) {
     // 跳转到项目详情页
-    router.push(`/projects/${project.externalProjectId}`);
+    router.push(`/projects/${project.id}`);
   } else {
     ElMessage.info("该项目暂无详情页面");
   }
@@ -578,3 +580,93 @@ onMounted(async () => {
   ]);
 });
 </script>
+
+<style scoped>
+/* 展开动画效果 */
+.expand-content {
+  margin: 0 12px;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+.expand-inner {
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin: 8px 0;
+  border: 1px solid #e2e8f0;
+  transform: translateY(-10px);
+  opacity: 0;
+  animation: expandIn 0.3s ease-out forwards;
+}
+
+@keyframes expandIn {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 深色模式样式 */
+.dark .expand-inner {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border-color: #475569;
+}
+
+/* 单元格项目样式 */
+.cell-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.dark .cell-item {
+  color: #d1d5db;
+}
+
+/* 描述列表样式优化 */
+:deep(.el-descriptions) {
+  --el-descriptions-item-bordered-label-background: #f8fafc;
+  --el-descriptions-item-bordered-content-background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark :deep(.el-descriptions) {
+  --el-descriptions-item-bordered-label-background: #374151;
+  --el-descriptions-item-bordered-content-background: #1f2937;
+}
+
+/* 表格行悬停效果 */
+:deep(.el-table__row) {
+  transition: all 0.2s ease;
+}
+
+:deep(.el-table__row:hover) {
+  background-color: #f8fafc !important;
+}
+
+.dark :deep(.el-table__row:hover) {
+  background-color: #374151 !important;
+}
+
+/* 展开按钮样式 */
+:deep(.el-table__expand-icon) {
+  transition: transform 0.2s ease;
+}
+
+:deep(.el-table__expand-icon--expanded) {
+  transform: rotate(90deg);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .expand-inner {
+    padding: 12px 16px;
+    margin: 4px 0;
+  }
+}
+</style>
