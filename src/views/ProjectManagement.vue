@@ -15,6 +15,7 @@
           @click="handleSync"
           :loading="syncStore.isSyncing"
           :icon="Refresh"
+          v-if="authStore.isAdmin"
         >
           {{ syncStore.isSyncing ? "同步中..." : "同步项目" }}
         </el-button>
@@ -102,7 +103,8 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow" width="100%">
       <div class="p-6 border-b border-gray-200 dark:border-gray-700">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-          项目列表 ({{ filteredProjects.length }})
+          项目列表 ({{ (current_page - 1) * page_size + 1 }} -
+          {{ current_page * page_size }}，共{{ total_projects }}个)
         </h2>
       </div>
 
@@ -148,13 +150,18 @@
           class="py-6"
           show-header="false"
           table-layout="fix"
+          @expand-change="handleExpandChange"
+          :expand-row-keys="expandRowKeys"
+          row-key="id"
         >
-          <el-table-column width="60" align="center" label="serialNumber">
+          <!-- 项目编号 -->
+          <el-table-column width="50vw" align="center" label="serialNumber">
             <template #default="scope">
               {{ scope.row.serialNumber }}
             </template>
           </el-table-column>
 
+          <!-- 项目名 -->
           <el-table-column align="left">
             <template #default="scope">
               <span
@@ -166,8 +173,8 @@
             </template>
           </el-table-column>
 
-          <!-- 类型 -->
-          <el-table-column width="80" align="center">
+          <!-- 所属项目集 -->
+          <el-table-column width="100vw" align="right">
             <template #default="scope">
               <div class="inline-flex items-center justify-end">
                 <el-tag
@@ -182,7 +189,7 @@
           </el-table-column>
 
           <!-- 发布状态 -->
-          <el-table-column width="80" align="center">
+          <el-table-column width="80vw" align="center">
             <template #default="scope">
               <el-tag :type="getPublishStatusType(scope.row.publishStatus)">
                 {{ getPublishStatusText(scope.row.publishStatus) }}
@@ -191,7 +198,7 @@
           </el-table-column>
 
           <!-- 项目进度 -->
-          <el-table-column width="200" align="right">
+          <el-table-column width="200vw" align="right">
             <template #default="scope">
               <div class="flex space-x-3 justify-center">
                 <div
@@ -201,8 +208,9 @@
                 >
                   <span class="text-sm">{{ label }}</span>
                   <component
-                    :is="getProgressIcon(scope.row.workStatus, index)"
+                    :is="getProgressIcon(scope.row.workStatus, index).icon"
                     class="w-4 h-4"
+                    :class="getProgressIcon(scope.row.workStatus, index).class"
                   />
                 </div>
               </div>
@@ -212,69 +220,29 @@
           <!-- 展开按钮 -->
           <el-table-column type="expand">
             <template #default="scope">
-              <div class="expand-content">
-                <div class="expand-inner">
-                  <el-descriptions class="margin-top" :column="2" border>
-                    <el-descriptions-item>
-                      <template #label>
-                        <div class="cell-item">
-                          <el-icon><Aim /></el-icon>
-                          图源
-                        </div>
-                      </template>
-                      {{ scope.row.imageSource || "暂无" }}
-                    </el-descriptions-item>
-                    <el-descriptions-item>
-                      <template #label>
-                        <div class="cell-item">
-                          <el-icon><MagicStick /></el-icon>
-                          美工
-                        </div>
-                      </template>
-                      {{ scope.row.artist || "暂无" }}
-                    </el-descriptions-item>
-                    <el-descriptions-item>
-                      <template #label>
-                        <div class="cell-item">
-                          <el-icon><EditPen /></el-icon>
-                          翻译
-                        </div>
-                      </template>
-                      {{ scope.row.translator || "暂无" }}
-                    </el-descriptions-item>
-                    <el-descriptions-item>
-                      <template #label>
-                        <div class="cell-item">
-                          <el-icon><DocumentChecked /></el-icon>
-                          校对
-                        </div>
-                      </template>
-                      {{ scope.row.proofreader || "暂无" }}
-                    </el-descriptions-item>
-                    <el-descriptions-item>
-                      <template #label>
-                        <div class="cell-item">
-                          <el-icon><Stamp /></el-icon>
-                          嵌字
-                        </div>
-                      </template>
-                      {{ scope.row.typesetter || "暂无" }}
-                    </el-descriptions-item>
-                    <el-descriptions-item>
-                      <template #label>
-                        <div class="cell-item">
-                          <el-icon><CircleCheck /></el-icon>
-                          审核
-                        </div>
-                      </template>
-                      {{ scope.row.reviewer || "暂无" }}
-                    </el-descriptions-item>
-                  </el-descriptions>
-                </div>
-              </div>
+              <ProjectTableSpan :project="scope.row" />
             </template>
           </el-table-column>
         </el-table>
+
+        <!-- 分页 -->
+        <div
+          style="
+            margin-bottom: 2vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          "
+        >
+          <el-pagination
+            :page-size="15"
+            :pager-count="5"
+            layout="prev, pager, next"
+            :current-page="current_page"
+            @current-change="handleCurrentPageChange"
+            :total="1000"
+          />
+        </div>
       </div>
     </div>
 
@@ -375,18 +343,14 @@ import {
   PriceTag,
   Refresh,
   Download,
-  Aim,
-  MagicStick,
-  EditPen,
-  DocumentChecked,
-  Stamp,
-  CircleCheck,
 } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useSyncStore } from "@/stores/sync";
 import { useAuthStore } from "@/stores/auth";
 import * as XLSX from "xlsx";
 import type { FormInstance, FormRules } from "element-plus";
+import ProjectTableSpan from "@/components/ProjectTableSpan.vue";
+import { authApi } from "@/api/auth";
 
 const router = useRouter();
 const syncStore = useSyncStore();
@@ -399,6 +363,14 @@ const showTagManager = ref(false);
 const showCreateTag = ref(false);
 const creating = ref(false);
 const tagFormRef = ref<FormInstance>();
+const expandRowKeys = ref<any[]>([]);
+
+// 分页相关
+const current_page = ref<number>(1);
+const page_size = 15;
+
+// 总项目数
+const total_projects = ref<number>(1024);
 
 const tagForm = reactive({
   name: "",
@@ -472,12 +444,11 @@ const formatDate = (dateString: string) => {
 };
 
 const getProgressIcon = (status: number, index: number) => {
-  console.log(status);
   const trit = status.toString(3).padStart(4, "0")[index];
-  console.log(trit);
-  if (trit === "2") return Select;
-  if (trit === "1") return MoreFilled;
-  return CloseBold;
+
+  if (trit === "2") return { icon: Select, class: "text-green-500" };
+  if (trit === "1") return { icon: MoreFilled, class: "text-yellow-500" };
+  return { icon: CloseBold, class: "text-gray-500" };
 };
 
 const handleSync = async () => {
@@ -573,11 +544,26 @@ const handleDeleteTag = async (tagId: string) => {
   }
 };
 
+const handleExpandChange = async (row: any, expandedRows: any[]) => {
+  expandRowKeys.value = expandedRows.length > 0 ? [row.id] : [];
+  console.log(expandRowKeys.value);
+};
+
+const handleCurrentPageChange = async (page: number) => {
+  current_page.value = page;
+
+  // TODO by influ3nza:
+  // query backend w/ page_serial, page_size, sort, status, tag_id g/ project[]
+};
+
 onMounted(async () => {
   await Promise.all([
     syncStore.fetchSyncedProjects(),
     syncStore.fetchProjectTags(),
   ]);
+
+  // TODO by influ3nza:
+  // query backend w/ - g/ number
 });
 </script>
 
@@ -609,7 +595,7 @@ onMounted(async () => {
 
 /* 深色模式样式 */
 .dark .expand-inner {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: #1e293b;
   border-color: #475569;
 }
 

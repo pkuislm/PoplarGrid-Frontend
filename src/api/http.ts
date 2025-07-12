@@ -177,6 +177,7 @@ const generateSyncedProjectsMockData = () => {
       notes: Math.random() > 0.7 ? `项目${i}的备注信息` : undefined,
       members,
       externalProjectId: `ext_${i}`,
+      coverImage: "https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=400",
       createdAt: new Date(Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000).toISOString(),
       updatedAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()
     })

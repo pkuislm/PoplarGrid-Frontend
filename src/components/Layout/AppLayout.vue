@@ -123,7 +123,7 @@ const teamsStore = useTeamsStore()
 const navigation = computed(() => [
   { name: '仪表板', href: '/dashboard' },
   { name: '项目管理', href: '/projects' },
-  { name: '高级管理', href: '/project-management' },
+  { name: '所有项目', href: '/project-management' },
   { name: '统计分析', href: '/statistics' },
 ])
 

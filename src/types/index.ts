@@ -255,6 +255,7 @@ export interface SyncedProject {
   workStatus: number,
   lastUpdated: string // 上次更新日期
   notes?: string // 备注
+  coverImage: string
   members: SyncedProjectMember[] // 项目成员
   externalProjectId?: string // 外部平台项目ID
   createdAt: string
