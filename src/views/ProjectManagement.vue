@@ -61,41 +61,101 @@
     </div>
 
     <!-- 筛选器 -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-      <div class="flex flex-wrap gap-4 items-center">
-        <el-select
-          v-model="typeFilter"
-          placeholder="所属项目集"
-          clearable
-          class="w-40"
-        >
-          <el-option label="全部类型" value="" />
-          <el-option
-            v-for="tag in syncStore.projectTags"
-            :key="tag.id"
-            :label="tag.name"
-            :value="tag.name"
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow p-4"
+      style="display: flex; flex-direction: column; gap: 2vh"
+    >
+      <div class="flex flex-wrap items-center" style="gap: 2vw">
+        <div style="display: flex; gap: 1vw; align-items: center">
+          <span> 项目名称 </span>
+          <el-input
+            v-model="searchQuery"
+            placeholder="搜索项目名称..."
+            :prefix-icon="Search"
+            class="w-64"
+            style="width: 30vw"
           />
-        </el-select>
-
-        <el-select
-          v-model="statusFilter"
-          placeholder="状态"
-          clearable
-          class="w-40"
+        </div>
+        <div style="display: flex; gap: 1vw; align-items: center">
+          <span> 所属项目集 </span>
+          <el-select
+            v-model="typeFilter"
+            placeholder="选择项目集"
+            clearable
+            class="w-40"
+          >
+            <el-option label="全部类型" value="" />
+            <el-option
+              v-for="tag in syncStore.projectTags"
+              :key="tag.id"
+              :label="tag.name"
+              :value="tag.name"
+            />
+          </el-select>
+        </div>
+      </div>
+      <div
+        style="
+          display: flex;
+          justify-content: left;
+          gap: 2vw;
+          align-items: center;
+        "
+      >
+        <span> 项目状态 </span>
+        <div
+          v-for="(field, index) in status_fields"
+          style="display: flex; align-items: center; gap: 1vw"
         >
-          <el-option label="全部状态" value="" />
-          <el-option label="未发布" value="not_published" />
-          <el-option label="已发布" value="published" />
-          <el-option label="待发布" value="pending" />
-        </el-select>
+          <el-tag type="info" size="large" effect="dark">{{ field }}</el-tag>
+          <el-select
+            :key="field"
+            style="width: 10vw"
+            v-model="project_status_filter[index]"
+            clearable
+            :placeholder="'选择' + field + '状态'"
+            @change="handleStatusFilterChange"
+            :disabled="status_filter_disable[index]"
+          >
+            <!-- 自定义选中项显示 -->
+            <template #label>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: left;
+                  gap: 0.5vw;
+                "
+                v-if="project_status_filter[index] !== undefined"
+              >
+                <component
+                  :is="status_options[project_status_filter[index]]?.icon"
+                  :class="status_options[project_status_filter[index]]?.class"
+                />
+                <span>{{
+                  status_options[project_status_filter[index]]?.description
+                }}</span>
+              </div>
+            </template>
 
-        <el-input
-          v-model="searchQuery"
-          placeholder="搜索项目名称..."
-          :prefix-icon="Search"
-          class="w-64"
-        />
+            <el-option
+              v-for="option in status_options"
+              :key="field + option.description"
+              :value="option.value"
+            >
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                "
+              >
+                <component :is="option.icon" :class="option.class" />
+                <span>{{ option.description }}</span>
+              </div>
+            </el-option>
+          </el-select>
+        </div>
       </div>
     </div>
 
@@ -137,7 +197,7 @@
       <div v-else-if="filteredProjects.length === 0" class="text-center py-12">
         <p class="text-gray-500 dark:text-gray-400">
           {{
-            searchQuery || typeFilter || statusFilter
+            searchQuery || typeFilter
               ? "没有找到匹配的项目"
               : "暂无项目，请先同步数据"
           }}
@@ -357,13 +417,38 @@ const syncStore = useSyncStore();
 const authStore = useAuthStore();
 
 const typeFilter = ref("");
-const statusFilter = ref("");
 const searchQuery = ref("");
 const showTagManager = ref(false);
 const showCreateTag = ref(false);
 const creating = ref(false);
 const tagFormRef = ref<FormInstance>();
 const expandRowKeys = ref<any[]>([]);
+
+// 筛选器相关
+const project_status_filter = ref<(number | undefined)[]>([undefined, undefined, undefined, undefined]);
+const status_filter_disable = ref<boolean[]>([false, false, false, false]);
+const pub_status = ref<number>(3); // 发布状况
+const status_fields = ["翻译", "校对", "嵌字", "审核"];
+const status_options = [
+  {
+    icon: CloseBold,
+    class: "text-gray-500 w-4 h-4",
+    description: "未开始",
+    value: 0,
+  },
+  {
+    icon: MoreFilled,
+    class: "text-yellow-500 w-4 h-4",
+    description: "进行中",
+    value: 1,
+  },
+  {
+    icon: Select,
+    class: "text-green-500 w-4 h-4",
+    description: "已完成",
+    value: 2,
+  },
+];
 
 // 分页相关
 const current_page = ref<number>(1);
@@ -387,10 +472,6 @@ const filteredProjects = computed(() => {
 
   if (typeFilter.value) {
     filtered = filtered.filter((p) => p.type === typeFilter.value);
-  }
-
-  if (statusFilter.value) {
-    filtered = filtered.filter((p) => p.publishStatus === statusFilter.value);
   }
 
   if (searchQuery.value) {
@@ -555,6 +636,21 @@ const handleCurrentPageChange = async (page: number) => {
   // TODO by influ3nza:
   // query backend w/ page_serial, page_size, sort, status, tag_id g/ project[]
 };
+
+const handleStatusFilterChange = (i: number) => {
+  console.log(project_status_filter.value);
+  const last_index = project_status_filter.value.lastIndexOf(2);
+  for (let j = 0; j < 4; j++) {
+    status_filter_disable.value[j] = false;
+  }
+  
+  if (last_index !== -1) {
+    for (let j = 0; j < last_index; j++) {
+      project_status_filter.value[j] = 2;
+      status_filter_disable.value[j] = true;
+    }
+  }
+}
 
 onMounted(async () => {
   await Promise.all([
