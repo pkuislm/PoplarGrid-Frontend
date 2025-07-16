@@ -93,6 +93,17 @@
             />
           </el-select>
         </div>
+        <div style="display: flex; gap: 1vw; align-items: center">
+          <span> 发布状态 </span>
+          <el-select
+            v-model="pub_status"
+            placeholder="选择发布状态"
+            clearable
+            class="w-40"
+          >
+            <el-option label="全部类型" value="" />
+          </el-select>
+        </div>
       </div>
       <div
         style="
@@ -102,7 +113,7 @@
           align-items: center;
         "
       >
-        <span> 项目状态 </span>
+        <span> 分管状态 </span>
         <div
           v-for="(field, index) in status_fields"
           style="display: flex; align-items: center; gap: 1vw"
@@ -156,6 +167,25 @@
             </el-option>
           </el-select>
         </div>
+      </div>
+      <div class="flex flex-wrap items-center" style="gap: 2vw">
+        <span> 排序方式 </span>
+        <el-select
+          v-model="order_mode"
+          placeholder="选择排序方式"
+          class="w-40"
+        >
+          <template #label>
+            <span>{{ order_options[order_mode].label }}</span>
+          </template>
+          <el-option
+            v-for="option in order_options"
+            :key="option.label"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </el-option>
+        </el-select>
       </div>
     </div>
 
@@ -425,9 +455,15 @@ const tagFormRef = ref<FormInstance>();
 const expandRowKeys = ref<any[]>([]);
 
 // 筛选器相关
-const project_status_filter = ref<(number | undefined)[]>([undefined, undefined, undefined, undefined]);
+const project_status_filter = ref<(number | undefined)[]>([
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+]);
 const status_filter_disable = ref<boolean[]>([false, false, false, false]);
-const pub_status = ref<number>(3); // 发布状况
+const pub_status = ref<number | undefined>(undefined); // 发布状况
+const order_mode = ref<number>(0); // 显示排序方式
 const status_fields = ["翻译", "校对", "嵌字", "审核"];
 const status_options = [
   {
@@ -447,6 +483,24 @@ const status_options = [
     class: "text-green-500 w-4 h-4",
     description: "已完成",
     value: 2,
+  },
+];
+const order_options = [
+  {
+    label: "更新时间由新到旧",
+    value: 0,
+  },
+  {
+    label: "更新时间由旧到新",
+    value: 1,
+  },
+  {
+    label: "项目编号由小到大",
+    value: 2,
+  },
+  {
+    label: "项目编号由大到小",
+    value: 3,
   },
 ];
 
@@ -637,20 +691,34 @@ const handleCurrentPageChange = async (page: number) => {
   // query backend w/ page_serial, page_size, sort, status, tag_id g/ project[]
 };
 
-const handleStatusFilterChange = (i: number) => {
-  console.log(project_status_filter.value);
+const handleStatusFilterChange = (_: any) => {
   const last_index = project_status_filter.value.lastIndexOf(2);
+  const old_filter_disable = [...status_filter_disable.value];
+
   for (let j = 0; j < 4; j++) {
     status_filter_disable.value[j] = false;
   }
-  
+
   if (last_index !== -1) {
     for (let j = 0; j < last_index; j++) {
       project_status_filter.value[j] = 2;
       status_filter_disable.value[j] = true;
     }
   }
-}
+
+  // 取消禁用状态的筛选器，将清除选项
+  for (let j = 0; j < 4; j++) {
+    if (
+      old_filter_disable[j] === true &&
+      status_filter_disable.value[j] === false
+    ) {
+      for (let k = 0; k <= j; k++) {
+        project_status_filter.value[k] = undefined;
+        status_filter_disable.value[k] = false;
+      }
+    }
+  }
+};
 
 onMounted(async () => {
   await Promise.all([
