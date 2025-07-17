@@ -251,7 +251,7 @@ export interface SyncedProject {
   proofreader?: string // 校对
   typesetter?: string // 嵌字
   reviewer?: string // 审核
-  publishStatus: 'not_published' | 'published' | 'pending' // 发布状态
+  publishStatus: number // 发布状态
   workStatus: number,
   lastUpdated: string // 上次更新日期
   notes?: string // 备注

@@ -131,14 +131,14 @@ const generateTimeBasedMockData = () => {
 // 生成模拟的同步项目数据
 const generateSyncedProjectsMockData = () => {
   const roles = ['image_source', 'artist', 'translator', 'proofreader', 'typesetter', 'reviewer']
-  const publishStatuses = ['not_published', 'published', 'pending']
+  const publishStatuses = [0, 1]
   const workStatuses = [75, 27, 78, 0, 63]
   const projectTypes = ['C105', 'C104', '例大祭', '一般向', '成人向']
   
   const projects = []
   for (let i = 1; i <= 15; i++) {
     const serialNumber = i
-    const projectName = `捕まえた女盗賊を薬でメス堕ちさせて孕ませたらめっちゃ懐かれた${i}`
+    const projectName = `TITLE${i}`
     const originalName = `【${serialNumber}】${projectName}`
     
     // 随机生成成员
