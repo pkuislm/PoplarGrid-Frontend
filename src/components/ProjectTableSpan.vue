@@ -1,117 +1,138 @@
 <template>
-  <div class="project-table-span">
-    <div style="display: flex; align-items: flex-start; gap: 3.5vh">
-      <el-image
-        style="min-width: 20vw; height: 60vh; flex-shrink: 0"
-        :key="project.coverImage"
-        :src="project.coverImage"
-        :fit="contain"
-        lazys
-      ></el-image>
-      <div
-        style="
-          width: 100%;
-          height: 60vh;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 5%;
-        "
-      >
-        <div style="width: 100%">
-          <el-descriptions
-            class="margin-top"
-            :column="2"
-            style="width: 100%"
-            border
-          >
-            <el-descriptions-item>
-              <template #label>
-                <div class="cell-item">
-                  <el-icon><Aim /></el-icon>
-                  图源
-                </div>
-              </template>
-              {{ project.imageSource || "暂无" }}
-            </el-descriptions-item>
-
-            <el-descriptions-item>
-              <template #label>
-                <div class="cell-item">
-                  <el-icon><MagicStick /></el-icon>
-                  美工
-                </div>
-              </template>
-              {{ project.artist || "暂无" }}
-            </el-descriptions-item>
-
-            <el-descriptions-item>
-              <template #label>
-                <div class="cell-item">
-                  <el-icon><EditPen /></el-icon>
-                  翻译
-                </div>
-              </template>
-              {{ project.translator || "暂无" }}
-            </el-descriptions-item>
-
-            <el-descriptions-item>
-              <template #label>
-                <div class="cell-item">
-                  <el-icon><DocumentChecked /></el-icon>
-                  校对
-                </div>
-              </template>
-              {{ project.proofreader || "暂无" }}
-            </el-descriptions-item>
-
-            <el-descriptions-item>
-              <template #label>
-                <div class="cell-item">
-                  <el-icon><Stamp /></el-icon>
-                  嵌字
-                </div>
-              </template>
-              {{ project.typesetter || "暂无" }}
-            </el-descriptions-item>
-
-            <el-descriptions-item>
-              <template #label>
-                <div class="cell-item">
-                  <el-icon><CircleCheck /></el-icon>
-                  审核
-                </div>
-              </template>
-              {{ project.reviewer || "暂无" }}
-            </el-descriptions-item>
-          </el-descriptions>
+  <div class="project-detail-container">
+    <div class="project-content">
+      <div class="project-layout">
+        <!-- 项目图片 -->
+        <div class="project-image-container">
+          <el-image
+            class="project-image"
+            :key="project.coverImage"
+            :src="project.coverImage"
+            :fit="contain"
+            lazy
+          ></el-image>
         </div>
-        <div style="height: 45%; width: 100%">
-          <el-descriptions
-            class="margin-top"
-            :column="1"
-            style="width: 100%"
-            border
-          >
-            <el-descriptions-item>
-              <template #label>
-                <div class="cell-item">
-                  <el-icon><Flag /></el-icon>
-                  创建时间
-                </div>
-              </template>
-              {{ project.createdAt || "暂无" }}
-            </el-descriptions-item>
-            <el-descriptions-item>
-              <template #label>
-                <div class="cell-item">
-                  <el-icon><Edit /></el-icon>
-                  最后更新时间
-                </div>
-              </template>
-              {{ project.updatedAt || "暂无" }}
-            </el-descriptions-item>
-          </el-descriptions>
+        
+        <!-- 项目信息 -->
+        <div class="project-info">
+          <!-- 项目成员信息 -->
+          <div class="project-members">
+            <el-descriptions
+              class="members-description"
+              :column="2"
+              border
+            >
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">
+                    <el-icon><Aim /></el-icon>
+                    图源
+                  </div>
+                </template>
+                {{ project.imageSource || "暂无" }}
+              </el-descriptions-item>
+
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">
+                    <el-icon><MagicStick /></el-icon>
+                    美工
+                  </div>
+                </template>
+                {{ project.artist || "暂无" }}
+              </el-descriptions-item>
+
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">
+                    <el-icon><EditPen /></el-icon>
+                    翻译
+                  </div>
+                </template>
+                {{ project.translator || "暂无" }}
+              </el-descriptions-item>
+
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">
+                    <el-icon><DocumentChecked /></el-icon>
+                    校对
+                  </div>
+                </template>
+                {{ project.proofreader || "暂无" }}
+              </el-descriptions-item>
+
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">
+                    <el-icon><Stamp /></el-icon>
+                    嵌字
+                  </div>
+                </template>
+                {{ project.typesetter || "暂无" }}
+              </el-descriptions-item>
+
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">
+                    <el-icon><CircleCheck /></el-icon>
+                    审核
+                  </div>
+                </template>
+                {{ project.reviewer || "暂无" }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
+
+          <!-- 项目时间信息 -->
+          <div class="project-time">
+            <el-descriptions
+              class="time-description"
+              :column="1"
+              border
+            >
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">
+                    <el-icon><Flag /></el-icon>
+                    创建时间
+                  </div>
+                </template>
+                {{ project.createdAt || "暂无" }}
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">
+                    <el-icon><Edit /></el-icon>
+                    最后更新时间
+                  </div>
+                </template>
+                {{ project.updatedAt || "暂无" }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
+
+          <!-- 项目进度 -->
+          <div class="project-progress">
+            <div class="progress-item">
+              <span class="progress-label">翻译进度</span>
+              <el-progress
+                :text-inside="true"
+                :stroke-width="26"
+                :percentage="70"
+                status="warning"
+              />
+            </div>
+            <div class="progress-item">
+              <span class="progress-label">校对进度</span>
+              <el-progress
+                :text-inside="true"
+                :stroke-width="26"
+                :percentage="70"
+                status="exception"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -137,12 +158,12 @@ defineProps<Props>();
 </script>
 
 <style scoped>
-.project-table-span {
-  padding: 16px 24px;
-  background: #91a1ba;
-  border-radius: 8px;
-  margin: 8px 12px;
-  border: 1px solid #e2e8f0;
+.project-detail-container {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
   transform: translateY(-10px);
   opacity: 0;
   animation: expandIn 0.3s ease-out forwards;
@@ -155,37 +176,221 @@ defineProps<Props>();
   }
 }
 
+.project-content {
+  width: 100%;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.project-layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.project-image-container {
+  flex: 0 0 auto;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+.project-image {
+  width: 100%;
+  height: 500px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.project-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 500px;
+}
+
+.project-members {
+  flex: 0 0 auto;
+}
+
+.members-description {
+  width: 100%;
+}
+
+.project-time {
+  flex: 0 0 auto;
+}
+
+.time-description {
+  width: 100%;
+}
+
+.project-progress {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  justify-content: center;
+}
+
+.progress-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-label {
+  font-weight: 500;
+  color: #606266;
+  font-size: 14px;
+}
+
 .cell-item {
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: 500;
-  color: #374151;
 }
 
-.dark .cell-item {
-  color: #d1d5db;
+/* 平板设备响应式 */
+@media (max-width: 1024px) {
+  .project-detail-container {
+    padding: 16px;
+  }
+  
+  .project-content {
+    padding: 20px;
+  }
+  
+  .project-layout {
+    gap: 24px;
+  }
+  
+  .project-image-container {
+    min-width: 250px;
+    max-width: 300px;
+  }
+  
+  .project-image {
+    height: 400px;
+  }
+  
+  .project-info {
+    min-height: 400px;
+  }
 }
 
-/* 描述列表样式优化 */
-:deep(.el-descriptions) {
-  --el-descriptions-item-bordered-label-background: #f8fafc;
-  --el-descriptions-item-bordered-content-background: #ffffff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.dark :deep(.el-descriptions) {
-  --el-descriptions-item-bordered-label-background: #374151;
-  --el-descriptions-item-bordered-content-background: #1f2937;
-}
-
-/* 响应式调整 */
+/* 手机设备响应式 */
 @media (max-width: 768px) {
-  .project-table-span {
-    padding: 12px 16px;
-    margin: 4px 0;
+  .project-detail-container {
+    padding: 12px;
+  }
+  
+  .project-content {
+    padding: 16px;
+  }
+  
+  .project-layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .project-image-container {
+    min-width: 100%;
+    max-width: 100%;
+    align-self: center;
+  }
+  
+  .project-image {
+    height: 300px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .project-info {
+    min-height: auto;
+    gap: 20px;
+  }
+  
+  .members-description {
+    --el-descriptions-item-bordered-label-background: #fafafa;
+  }
+  
+  .members-description :deep(.el-descriptions__body) {
+    --el-descriptions-table-border: 1px solid #e4e7ed;
+  }
+}
+
+/* 小屏幕手机设备响应式 */
+@media (max-width: 480px) {
+  .project-detail-container {
+    padding: 8px;
+  }
+  
+  .project-content {
+    padding: 12px;
+  }
+  
+  .project-layout {
+    gap: 16px;
+  }
+  
+  .project-image {
+    height: 250px;
+  }
+  
+  .project-info {
+    gap: 16px;
+  }
+  
+  .project-progress {
+    padding: 16px;
+  }
+  
+  .progress-item {
+    gap: 6px;
+  }
+  
+  .progress-label {
+    font-size: 13px;
+  }
+  
+  /* 在小屏幕上将描述列表改为单列 */
+  .members-description {
+    --el-descriptions-column: 1;
+  }
+  
+  .members-description :deep(.el-descriptions__body .el-descriptions__table) {
+    table-layout: fixed;
+  }
+  
+  .members-description :deep(.el-descriptions__label) {
+    width: 35%;
+  }
+  
+  .members-description :deep(.el-descriptions__content) {
+    width: 65%;
+  }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 360px) {
+  .project-image {
+    height: 200px;
+  }
+  
+  .cell-item {
+    font-size: 12px;
+  }
+  
+  .progress-label {
+    font-size: 12px;
   }
 }
 </style>

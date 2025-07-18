@@ -306,7 +306,7 @@
                     </div>
                     <div class="progress-container">
                       <div
-                        v-for="(label, index) in ['翻', '校', '嵌', '审']"
+                        v-for="(label, index) in status_fields_short"
                         :key="label"
                         class="progress-item"
                       >
@@ -425,6 +425,7 @@ const status_filter_disable = ref<boolean[]>([false, false, false, false]);
 const pub_status = ref<number>(2); // 发布状况
 const order_mode = ref<number>(0); // 显示排序方式
 const status_fields = ["翻译", "校对", "嵌字", "审核"];
+const status_fields_short = ["翻", "校", "嵌", "审"];
 const status_options = [
   {
     icon: Star,
@@ -653,6 +654,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* 表格样式 */
 .table-container {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -821,11 +823,6 @@ onMounted(async () => {
 .progress-icon {
   width: 16px;
   height: 16px;
-  transition: all 0.2s ease;
-}
-
-.progress-icon:hover {
-  transform: scale(1.1);
 }
 
 .bottom-pagination {
@@ -842,7 +839,7 @@ onMounted(async () => {
   border-color: #475569;
 }
 
-/* 响应式设计 */
+/* 表格 响应式设计 */
 @media (max-width: 1250px) {
   .header-content {
     flex-direction: column;
@@ -1032,7 +1029,7 @@ onMounted(async () => {
   color: #d1d5db;
 }
 
-/* 展开动画效果 */
+/* 展开样式 */
 .expand-content {
   margin: 0 12px;
   overflow: hidden;
@@ -1057,7 +1054,6 @@ onMounted(async () => {
   }
 }
 
-/* 深色模式样式 */
 .dark .expand-inner {
   background: #1e293b;
   border-color: #475569;
@@ -1112,7 +1108,7 @@ onMounted(async () => {
   transform: rotate(90deg);
 }
 
-/* 响应式调整 */
+/* 展开 响应式 */
 @media (max-width: 1250px) {
   .expand-inner {
     padding: 12px 16px;
@@ -1120,6 +1116,7 @@ onMounted(async () => {
   }
 }
 
+/* 筛选器样式 */
 .filter-container {
   background: #cfd6ec 0%;
   border: 1px solid #e2e8f0;
@@ -1286,7 +1283,7 @@ onMounted(async () => {
   background: #1e40af 100%;
 }
 
-/* 响应式设计 */
+/* 筛选器 样式 */
 @media (max-width: 1250px) {
   .filter-container {
     padding: 16px;
