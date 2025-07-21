@@ -8,20 +8,16 @@
             class="project-image"
             :key="project.coverImage"
             :src="project.coverImage"
-            :fit="contain"
+            fit="contain"
             lazy
           ></el-image>
         </div>
-        
+
         <!-- 项目信息 -->
         <div class="project-info">
           <!-- 项目成员信息 -->
           <div class="project-members">
-            <el-descriptions
-              class="members-description"
-              :column="2"
-              border
-            >
+            <el-descriptions class="members-description" :column="2" border>
               <el-descriptions-item>
                 <template #label>
                   <div class="cell-item">
@@ -86,11 +82,7 @@
 
           <!-- 项目时间信息 -->
           <div class="project-time">
-            <el-descriptions
-              class="time-description"
-              :column="1"
-              border
-            >
+            <el-descriptions class="time-description" :column="1" border>
               <el-descriptions-item>
                 <template #label>
                   <div class="cell-item">
@@ -133,6 +125,11 @@
               />
             </div>
           </div>
+
+          <!-- 备注 -->
+           <div class="project-notes">
+              <span>这是项目备注占位内容，标签的长度，例如'50px'。作为Form直接子元素的form-item会继承该值。可以使用auto。When you use ==, it performs a comparison but doesn't assign the value. The comparison returns true. </span>
+           </div>
         </div>
       </div>
     </div>
@@ -192,13 +189,12 @@ defineProps<Props>();
 
 .project-image-container {
   flex: 0 0 auto;
-  min-width: 300px;
-  max-width: 400px;
+  width: 400px;
 }
 
 .project-image {
   width: 100%;
-  height: 500px;
+  height: 568px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -207,7 +203,7 @@ defineProps<Props>();
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 1vh;
   min-height: 500px;
 }
 
@@ -228,7 +224,7 @@ defineProps<Props>();
 }
 
 .project-progress {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -251,6 +247,16 @@ defineProps<Props>();
   font-size: 14px;
 }
 
+.project-notes {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  justify-content: center;
+  height: 100%;
+}
+
 .cell-item {
   display: flex;
   align-items: center;
@@ -263,24 +269,24 @@ defineProps<Props>();
   .project-detail-container {
     padding: 16px;
   }
-  
+
   .project-content {
     padding: 20px;
   }
-  
+
   .project-layout {
     gap: 24px;
   }
-  
+
   .project-image-container {
     min-width: 250px;
     max-width: 300px;
   }
-  
+
   .project-image {
     height: 400px;
   }
-  
+
   .project-info {
     min-height: 400px;
   }
@@ -291,37 +297,37 @@ defineProps<Props>();
   .project-detail-container {
     padding: 12px;
   }
-  
+
   .project-content {
     padding: 16px;
   }
-  
+
   .project-layout {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .project-image-container {
     min-width: 100%;
     max-width: 100%;
     align-self: center;
   }
-  
+
   .project-image {
     height: 300px;
     max-width: 400px;
     margin: 0 auto;
   }
-  
+
   .project-info {
     min-height: auto;
     gap: 20px;
   }
-  
+
   .members-description {
     --el-descriptions-item-bordered-label-background: #fafafa;
   }
-  
+
   .members-description :deep(.el-descriptions__body) {
     --el-descriptions-table-border: 1px solid #e4e7ed;
   }
@@ -332,48 +338,48 @@ defineProps<Props>();
   .project-detail-container {
     padding: 8px;
   }
-  
+
   .project-content {
     padding: 12px;
   }
-  
+
   .project-layout {
     gap: 16px;
   }
-  
+
   .project-image {
     height: 250px;
   }
-  
+
   .project-info {
     gap: 16px;
   }
-  
+
   .project-progress {
     padding: 16px;
   }
-  
+
   .progress-item {
     gap: 6px;
   }
-  
+
   .progress-label {
     font-size: 13px;
   }
-  
+
   /* 在小屏幕上将描述列表改为单列 */
   .members-description {
     --el-descriptions-column: 1;
   }
-  
+
   .members-description :deep(.el-descriptions__body .el-descriptions__table) {
     table-layout: fixed;
   }
-  
+
   .members-description :deep(.el-descriptions__label) {
     width: 35%;
   }
-  
+
   .members-description :deep(.el-descriptions__content) {
     width: 65%;
   }
@@ -384,11 +390,11 @@ defineProps<Props>();
   .project-image {
     height: 200px;
   }
-  
+
   .cell-item {
     font-size: 12px;
   }
-  
+
   .progress-label {
     font-size: 12px;
   }

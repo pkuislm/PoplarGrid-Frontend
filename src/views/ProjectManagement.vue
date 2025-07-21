@@ -1,68 +1,9 @@
 <template>
   <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">所有项目</h1>
-      <div class="flex space-x-3">
-        <el-button
-          v-if="authStore.isAdmin"
-          @click="showTagManager = true"
-          :icon="PriceTag"
-        >
-          标签管理
-        </el-button>
-        <el-button
-          type="primary"
-          @click="handleSync"
-          :loading="syncStore.isSyncing"
-          :icon="Refresh"
-          v-if="authStore.isAdmin"
-        >
-          {{ syncStore.isSyncing ? "同步中..." : "同步项目" }}
-        </el-button>
-        <el-button
-          v-if="authStore.isAdmin"
-          @click="handleExport"
-          :icon="Download"
-        >
-          导出数据
-        </el-button>
-      </div>
-    </div>
-
-    <!-- 同步结果提示 -->
-    <div
-      v-if="syncStore.lastSyncResult"
-      class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4"
-    >
-      <div class="flex items-center">
-        <svg
-          class="w-5 h-5 text-green-600 dark:text-green-400 mr-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <div>
-          <p class="text-sm font-medium text-green-800 dark:text-green-200">
-            同步完成！共同步 {{ syncStore.lastSyncResult.syncedCount }} 个项目
-          </p>
-          <p class="text-xs text-green-600 dark:text-green-400 mt-1">
-            新增: {{ syncStore.lastSyncResult.newCount }} | 更新:
-            {{ syncStore.lastSyncResult.updatedCount }}
-          </p>
-        </div>
-      </div>
-    </div>
-
     <!-- 筛选器 -->
     <div
       class="filter-container bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
+      :class="{ 'switch-theme': my_filter }"
     >
       <!-- 操作按钮 -->
       <div class="action-section mb-6">
@@ -73,13 +14,48 @@
             align-items: center;
           "
         >
-          <span>筛选项目</span>
+          <div class="action-switch">
+            <span
+              :class="{ active: !my_filter }"
+              class="action-left"
+              @click="my_filter = false"
+            >
+              所有项目
+            </span>
+            <el-switch
+              v-model="my_filter"
+              @change="handleMyFilterChange"
+              size="large"
+              style="
+                --el-switch-on-color: #d63e3e;
+                --el-switch-off-color: #409eff;
+              "
+            />
+            <span
+              :class="{ active: my_filter }"
+              class="action-right"
+              @click="my_filter = true"
+            >
+              我的项目
+            </span>
+          </div>
           <div class="action-buttons">
-            <el-button size="large" @click="" class="reset-btn">
+            <el-button
+              size="large"
+              @click=""
+              class="reset-btn"
+              :class="{ 'switch-theme': my_filter }"
+            >
               <el-icon><RefreshLeft /></el-icon>
               &nbsp; 重置筛选
             </el-button>
-            <el-button type="primary" size="large" @click="" class="search-btn">
+            <el-button
+              type="primary"
+              size="large"
+              @click=""
+              class="search-btn"
+              :class="{ 'switch-theme': my_filter }"
+            >
               <el-icon><Search /></el-icon>
               &nbsp; 搜索
             </el-button>
@@ -102,6 +78,45 @@
             />
           </div>
           <div class="filter-item">
+            <label class="filter-label">参与人员</label>
+            <el-select
+              v-model="participant_filter"
+              filterable
+              remote
+              reserve-keyword
+              placeholder="查找参与人员"
+              :remote-method="handleParticipantFilterChange"
+              :loading="participant_filter_loading"
+              class="filter-select"
+              size="large"
+            >
+              <el-option
+                v-for="item in participant_filter_options"
+                :key="item.id"
+                :value="item"
+                class="h-[3vh]"
+              >
+                <div class="participant-option-display">
+                  <div class="flex items-center">
+                    <el-image
+                      class="h-[2vh] w-[2vh] rounded-full"
+                      :src="item.avatar"
+                      fit="cover"
+                    />
+                  </div>
+                  <div class="flex items-center font-semibold text-sm">
+                    <span>{{ item.name }}</span>
+                  </div>
+                </div>
+              </el-option>
+              <template #label>
+                <div class="flex items-center font-semibold text-sm">
+                  <span>{{ participant_filter?.name }}</span>
+                </div>
+              </template>
+            </el-select>
+          </div>
+          <div class="filter-item">
             <label class="filter-label">所属项目集</label>
             <el-select
               v-model="typeFilter"
@@ -122,13 +137,13 @@
           <div class="filter-item">
             <label class="filter-label">排序方式</label>
             <el-select
-              v-model="order_mode"
+              v-model="order_mode_filter"
               placeholder="选择排序方式"
               class="filter-select"
               size="large"
             >
               <template #label>
-                <span>{{ order_options[order_mode].label }}</span>
+                <span>{{ order_options[order_mode_filter].label }}</span>
               </template>
               <el-option
                 v-for="option in order_options"
@@ -201,7 +216,7 @@
           <div class="filter-item">
             <label class="filter-label">发布状态</label>
             <el-select
-              v-model="pub_status"
+              v-model="pub_status_filter"
               placeholder="选择发布状态"
               class="filter-select"
               size="large"
@@ -209,7 +224,8 @@
             >
               <template #label>
                 <span>{{
-                  pub_options.find((item) => item.value === pub_status)?.label
+                  pub_options.find((item) => item.value === pub_status_filter)
+                    ?.label
                 }}</span>
               </template>
               <el-option
@@ -263,7 +279,7 @@
             :expand-row-keys="expandRowKeys"
             row-key="id"
           >
-            <!-- 项目编号 -->
+            <!-- 将整个表格行作为一列，便于管理样式 -->
             <el-table-column align="center">
               <template #default="scope">
                 <div style="display: flex; justify-content: space-between">
@@ -274,9 +290,14 @@
                       align-items: center;
                     "
                   >
-                    <div class="serial-number mr-2">
-                      {{ scope.row.serialNumber }}
+                    <!-- 项目编号与项目集 -->
+                    <div class="project-type mr-2">
+                      <el-tag effect="dark" class="type-tag" size="large">
+                        {{ scope.row.type ? scope.row.type : "无分类" }} -
+                        {{ scope.row.serialNumber }}
+                      </el-tag>
                     </div>
+                    <!-- 项目名 -->
                     <div class="project-name">
                       <el-link
                         @click="navigateToProject(scope.row)"
@@ -294,16 +315,6 @@
                       align-items: center;
                     "
                   >
-                    <div class="project-type mr-2">
-                      <el-tag
-                        v-if="scope.row.type"
-                        effect="dark"
-                        class="type-tag"
-                        size="large"
-                      >
-                        {{ scope.row.type }}
-                      </el-tag>
-                    </div>
                     <div class="progress-container">
                       <div
                         v-for="(label, index) in status_fields_short"
@@ -405,10 +416,9 @@ import { ElMessage } from "element-plus";
 import { useSyncStore } from "@/stores/sync";
 import { useAuthStore } from "@/stores/auth";
 import * as XLSX from "xlsx";
-import type { FormInstance, FormRules } from "element-plus";
 import ProjectTableSpan from "@/components/ProjectTableSpan.vue";
-import { authApi } from "@/api/auth";
-import { labelInner } from "echarts/types/src/label/labelStyle.js";
+import { membersApi } from "@/api/members";
+import { User } from "@/types";
 
 const router = useRouter();
 const syncStore = useSyncStore();
@@ -420,10 +430,14 @@ const showTagManager = ref(false);
 const expandRowKeys = ref<any[]>([]);
 
 // 筛选器相关
-const project_status_filter = ref<number[]>([3, 3, 3, 3]);
-const status_filter_disable = ref<boolean[]>([false, false, false, false]);
-const pub_status = ref<number>(2); // 发布状况
-const order_mode = ref<number>(0); // 显示排序方式
+const my_filter = ref<boolean>(false);
+const project_status_filter = ref<number[]>([3, 3, 3, 3]); // 项目分管阶段
+const status_filter_disable = ref<boolean[]>([false, false, false, false]); // 项目分管阶段筛选器是否可操作
+const pub_status_filter = ref<number>(2); // 发布状况
+const order_mode_filter = ref<number>(0); // 显示排序方式
+const participant_filter = ref<User | null>(null); // 参与人员
+const participant_filter_loading = ref<boolean>(false); // 参与人员搜索加载状态
+const participant_filter_options = ref<User[]>([]); // 传回参与人员筛选器的结果
 const status_fields = ["翻译", "校对", "嵌字", "审核"];
 const status_fields_short = ["翻", "校", "嵌", "审"];
 const status_options = [
@@ -593,16 +607,45 @@ const navigateToProject = (project: any) => {
   }
 };
 
+const handleMyFilterChange = async (value: boolean) => {
+  if (value === true) {
+    // TODO by influ3nza:
+    // 按照本用户搜索项目，清空所有筛选条件
+  } else {
+    // TODO by influ3nza:
+    // 搜索全部项目，清空所有筛选条件
+  }
+};
+
 const handleExpandChange = async (row: any, expandedRows: any[]) => {
+  // 保证表格在同一时刻是有一行为展开状态
   expandRowKeys.value = expandedRows.length > 0 ? [row.id] : [];
-  console.log(expandRowKeys.value);
 };
 
 const handleCurrentPageChange = async (page: number) => {
+  // 处理表格分页显示
   current_page.value = page;
 
   // TODO by influ3nza:
   // query backend w/ page_serial, page_size, sort, status, tag_id g/ project[]
+};
+
+const handleParticipantFilterChange = async (query: string) => {
+  if (query) {
+    participant_filter_loading.value = true;
+
+    try {
+      const users = await membersApi.searchUsers(query);
+      participant_filter_options.value = users;
+    } catch (error) {
+      console.error("搜索失败:", error);
+      // 可以在这里设置错误状态或显示错误信息
+    } finally {
+      participant_filter_loading.value = false;
+    }
+  } else {
+    participant_filter_options.value = [];
+  }
 };
 
 const handleStatusFilterChange = (_: any) => {
@@ -621,7 +664,7 @@ const handleStatusFilterChange = (_: any) => {
   }
 
   // 检查发布状态筛选
-  if (pub_status.value === 1) {
+  if (pub_status_filter.value === 1) {
     for (let j = 0; j < 4; j++) {
       status_filter_disable.value[j] = true;
       project_status_filter.value[j] = 2;
@@ -649,6 +692,7 @@ onMounted(async () => {
   ]);
 
   // TODO by influ3nza:
+  // 请求总项目数量
   // query backend w/ - g/ number
 });
 </script>
@@ -746,14 +790,6 @@ onMounted(async () => {
   background: transparent;
 }
 
-.serial-number {
-  width: 3vw;
-  font-weight: 600;
-  color: #374151;
-  font-size: 18px;
-  text-align: left;
-}
-
 .dark .serial-number {
   color: #d1d5db;
 }
@@ -787,6 +823,7 @@ onMounted(async () => {
   display: flex;
   justify-content: center;
   align-items: center;
+  min-width: 10vw;
 }
 
 .type-tag {
@@ -1029,6 +1066,10 @@ onMounted(async () => {
   color: #d1d5db;
 }
 
+:deep(.el-tag__content) {
+  font-size: 18px;
+}
+
 /* 展开样式 */
 .expand-content {
   margin: 0 12px;
@@ -1128,6 +1169,42 @@ onMounted(async () => {
   border-color: #475569;
 }
 
+.filter-container.switch-theme {
+  background: #dabebe;
+  border-color: #f7bbbb;
+}
+
+.action-switch {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.action-switch span {
+  font-size: 16px;
+  font-weight: 500;
+  color: #909399;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.action-switch .action-left.active {
+  color: #409eff;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(64, 158, 255, 0.3);
+}
+
+.action-switch .action-right.active {
+  color: #d63e3e;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(64, 158, 255, 0.3);
+}
+
+.action-switch span:hover {
+  color: #409eff;
+}
+
 .search-section {
   padding: 20px;
   background: rgba(255, 255, 255, 0.7);
@@ -1183,6 +1260,13 @@ onMounted(async () => {
 
 .dark .section-title {
   color: #f9fafb;
+}
+
+.participant-option-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
 }
 
 .status-section {
@@ -1267,13 +1351,33 @@ onMounted(async () => {
   font-weight: 600;
 }
 
+.reset-btn.switch-theme {
+  border: 2px solid #806b6b;
+  color: #806b6b;
+  font-weight: 600;
+}
+
 .reset-btn:hover {
   border-color: #4b5563;
   color: #4b5563;
+  background-color: #cfd6e3;
+}
+
+.reset-btn.switch-theme:hover {
+  border-color: #634b4b;
+  color: #634b4b;
+  background-color: #e3cfcf;
 }
 
 .search-btn {
-  background: #3b82f6 0%;
+  background: #409eff 0%;
+  border: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.search-btn.switch-theme {
+  background: #d63e3e 0%;
   border: none;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -1281,6 +1385,10 @@ onMounted(async () => {
 
 .search-btn:hover {
   background: #1e40af 100%;
+}
+
+.search-btn.switch-theme:hover {
+  background: #8d1818 100%;
 }
 
 /* 筛选器 样式 */
