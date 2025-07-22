@@ -3,7 +3,6 @@
     <!-- 筛选器 -->
     <div
       class="filter-container bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
-      :class="{ 'switch-theme': my_filter }"
     >
       <!-- 操作按钮 -->
       <div class="action-section mb-6">
@@ -18,7 +17,8 @@
             <span
               :class="{ active: !my_filter }"
               class="action-left"
-              @click="my_filter = false"
+              :style="{ color: !my_filter ? color_theme_1 : '' }"
+              @click="switchMyFilter"
             >
               所有项目
             </span>
@@ -26,36 +26,26 @@
               v-model="my_filter"
               @change="handleMyFilterChange"
               size="large"
-              style="
-                --el-switch-on-color: #d63e3e;
-                --el-switch-off-color: #409eff;
-              "
+              :style="{
+                '--el-switch-on-color': color_theme_2,
+                '--el-switch-off-color': color_theme_1,
+              }"
             />
             <span
               :class="{ active: my_filter }"
               class="action-right"
-              @click="my_filter = true"
+              :style="{ color: my_filter ? color_theme_2 : '' }"
+              @click="switchMyFilter"
             >
               我的项目
             </span>
           </div>
           <div class="action-buttons">
-            <el-button
-              size="large"
-              @click=""
-              class="reset-btn"
-              :class="{ 'switch-theme': my_filter }"
-            >
+            <el-button size="large" @click="" class="reset-btn">
               <el-icon><RefreshLeft /></el-icon>
               &nbsp; 重置筛选
             </el-button>
-            <el-button
-              type="primary"
-              size="large"
-              @click=""
-              class="search-btn"
-              :class="{ 'switch-theme': my_filter }"
-            >
+            <el-button type="primary" size="large" @click="" class="search-btn">
               <el-icon><Search /></el-icon>
               &nbsp; 搜索
             </el-button>
@@ -241,7 +231,10 @@
     </div>
 
     <!-- 项目表格 -->
-    <div class="table-container bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+    <div
+      class="table-container bg-white dark:bg-gray-800 rounded-lg shadow-lg"
+      v-loading="project_page_loading"
+    >
       <!-- 表格标题栏 -->
       <div class="table-header">
         <div class="header-content">
@@ -271,7 +264,7 @@
       <div class="table-content">
         <div class="overflow-x-auto">
           <el-table
-            :data="filteredProjects"
+            :data="project_page"
             class="project-table"
             show-header="false"
             table-layout="fix"
@@ -333,11 +326,7 @@
                         />
                       </div>
                       <div class="progress-item">
-                        <span
-                          class="progress-label"
-                          style="font-weight: 600; color: #3b82f6"
-                          >发布</span
-                        >
+                        <span class="progress-label pub-label">发布</span>
                         <component
                           :is="
                             pub_options.find(
@@ -400,25 +389,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import {
   CloseBold,
   Select,
   MoreFilled,
   Search,
-  PriceTag,
-  Refresh,
-  Download,
   Star,
 } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { useSyncStore } from "@/stores/sync";
 import { useAuthStore } from "@/stores/auth";
-import * as XLSX from "xlsx";
 import ProjectTableSpan from "@/components/ProjectTableSpan.vue";
 import { membersApi } from "@/api/members";
-import { User } from "@/types";
+import { SyncedProject, User } from "@/types";
 
 const router = useRouter();
 const syncStore = useSyncStore();
@@ -426,7 +411,6 @@ const authStore = useAuthStore();
 
 const typeFilter = ref("");
 const searchQuery = ref("");
-const showTagManager = ref(false);
 const expandRowKeys = ref<any[]>([]);
 
 // 筛选器相关
@@ -512,43 +496,13 @@ const page_size = 15;
 // 总项目数
 const total_projects = ref<number>(1024);
 
-const filteredProjects = computed(() => {
-  let filtered = syncStore.syncedProjects;
+// 显示的项目页
+const project_page = ref<SyncedProject[]>([]);
+const project_page_loading = ref<boolean>(true); // 当前的表格页是否正在加载
 
-  if (typeFilter.value) {
-    filtered = filtered.filter((p) => p.type === typeFilter.value);
-  }
-
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (p) =>
-        p.name.toLowerCase().includes(query) ||
-        p.originalName.toLowerCase().includes(query)
-    );
-  }
-
-  return filtered.sort((a, b) => a.serialNumber - b.serialNumber);
-});
-
-const getPublishStatusText = (status: number) => {
-  switch (status) {
-    case 1:
-      return "已发布";
-    case 0:
-      return "未发布";
-    default:
-      return "未知";
-  }
-};
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("zh-CN", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-};
+// 颜色主题
+const color_theme_1 = ref<string>("");
+const color_theme_2 = ref<string>("");
 
 const getProgressIcon = (status: number, index: number) => {
   const trit = status.toString(3).padStart(4, "0")[index];
@@ -556,46 +510,6 @@ const getProgressIcon = (status: number, index: number) => {
   if (trit === "2") return { icon: Select, class: "text-green-500" };
   if (trit === "1") return { icon: MoreFilled, class: "text-yellow-500" };
   return { icon: CloseBold, class: "text-gray-500" };
-};
-
-const handleSync = async () => {
-  try {
-    await syncStore.syncProjects();
-    ElMessage.success("项目同步成功");
-  } catch (error) {
-    ElMessage.error("项目同步失败");
-  }
-};
-
-const handleExport = async () => {
-  try {
-    // 使用 XLSX 库在前端生成 Excel 文件
-    const data = filteredProjects.value.map((project, _) => ({
-      序号: project.serialNumber,
-      项目名称: project.name,
-      项目类型: project.type || "",
-      图源: project.imageSource || "",
-      美工: project.artist || "",
-      翻译: project.translator || "",
-      校对: project.proofreader || "",
-      嵌字: project.typesetter || "",
-      审核: project.reviewer || "",
-      发布状态: getPublishStatusText(project.publishStatus),
-      上次更新日期: formatDate(project.lastUpdated),
-      备注: project.notes || "",
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "项目列表");
-
-    const fileName = `项目列表_${new Date().toISOString().split("T")[0]}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
-
-    ElMessage.success("导出成功");
-  } catch (error) {
-    ElMessage.error("导出失败");
-  }
 };
 
 const navigateToProject = (project: any) => {
@@ -607,14 +521,29 @@ const navigateToProject = (project: any) => {
   }
 };
 
+const switchMyFilter = () => {
+  my_filter.value = !my_filter.value;
+  handleMyFilterChange(my_filter.value);
+}
+
 const handleMyFilterChange = async (value: boolean) => {
   if (value === true) {
     // TODO by influ3nza:
     // 按照本用户搜索项目，清空所有筛选条件
+    project_page_loading.value = true;
+    await syncStore.syncProjects();
+    project_page.value = syncStore.syncedProjects;
+    project_page_loading.value = false;
   } else {
     // TODO by influ3nza:
     // 搜索全部项目，清空所有筛选条件
+    project_page_loading.value = true;
+    await syncStore.syncProjects();
+    project_page.value = syncStore.syncedProjects;
+    project_page_loading.value = false;
   }
+
+  updateGlobalThemeColor();
 };
 
 const handleExpandChange = async (row: any, expandedRows: any[]) => {
@@ -685,11 +614,33 @@ const handleStatusFilterChange = (_: any) => {
   }
 };
 
+const updateGlobalThemeColor = () => {
+  if (my_filter.value) {
+    document.documentElement.style.setProperty(
+      "--project-theme-color",
+      color_theme_2.value
+    );
+  } else {
+    document.documentElement.style.setProperty(
+      "--project-theme-color",
+      color_theme_1.value
+    );
+  }
+};
+
 onMounted(async () => {
   await Promise.all([
     syncStore.fetchSyncedProjects(),
     syncStore.fetchProjectTags(),
   ]);
+
+  project_page.value = syncStore.syncedProjects;
+  project_page_loading.value = false;
+
+  // 获取颜色主题
+  color_theme_1.value = localStorage.getItem("color-theme-1") || "#3b82f6";
+  color_theme_2.value = localStorage.getItem("color-theme-2") || "#fa5555";
+  updateGlobalThemeColor();
 
   // TODO by influ3nza:
   // 请求总项目数量
@@ -807,7 +758,7 @@ onMounted(async () => {
 }
 
 .project-link:hover {
-  color: #1d4ed8;
+  color: var(--project-theme-color);
   transform: translateX(2px);
 }
 
@@ -831,6 +782,8 @@ onMounted(async () => {
   border-radius: 6px;
   padding: 4px 8px;
   font-size: 14px;
+  background-color: var(--project-theme-color);
+  border-color: var(--project-theme-color);
 }
 
 .progress-container {
@@ -855,6 +808,11 @@ onMounted(async () => {
 
 .dark .progress-label {
   color: #9ca3af;
+}
+
+.pub-label {
+  font-weight: 600;
+  color: var(--project-theme-color);
 }
 
 .progress-icon {
@@ -1014,7 +972,7 @@ onMounted(async () => {
 }
 
 :deep(.el-table__expand-icon:hover) {
-  color: #3b82f6;
+  color: var(--project-theme-color);
   transform: scale(1.1);
 }
 
@@ -1031,18 +989,18 @@ onMounted(async () => {
 }
 
 :deep(.el-pagination .el-pager li:hover) {
-  background: #3b82f6;
+  background: var(--project-theme-color);
   color: white;
   transform: translateY(-1px);
 }
 
 :deep(.el-pagination .el-pager li.is-active) {
-  background: #3b82f6;
+  background: var(--project-theme-color);
   color: white;
-  border-color: #3b82f6;
+  border-color: var(--project-theme-color);
 }
 
-:deep(.el-pagination .btn-prev, .el-pagination .btn-next) {
+:deep(.el-pagination .btn-prev) {
   background: transparent;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
@@ -1050,8 +1008,22 @@ onMounted(async () => {
   transition: all 0.2s ease;
 }
 
-:deep(.el-pagination .btn-prev:hover, .el-pagination .btn-next:hover) {
-  background: #3b82f6;
+:deep(.el-pagination .btn-next) {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin: 0 4px;
+  transition: all 0.2s ease;
+}
+
+:deep(.el-pagination .btn-prev:hover) {
+  background: var(--project-theme-color);
+  color: white;
+  transform: translateY(-1px);
+}
+
+:deep(.el-pagination .btn-next:hover) {
+  background: var(--project-theme-color);
   color: white;
   transform: translateY(-1px);
 }
@@ -1159,7 +1131,7 @@ onMounted(async () => {
 
 /* 筛选器样式 */
 .filter-container {
-  background: #cfd6ec 0%;
+  background: rgba(from var(--project-theme-color) r g b / 0.3);
   border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
 }
@@ -1167,11 +1139,6 @@ onMounted(async () => {
 .dark .filter-container {
   background: #1e293b 0%;
   border-color: #475569;
-}
-
-.filter-container.switch-theme {
-  background: #dabebe;
-  border-color: #f7bbbb;
 }
 
 .action-switch {
@@ -1190,19 +1157,17 @@ onMounted(async () => {
 }
 
 .action-switch .action-left.active {
-  color: #409eff;
   font-weight: 600;
   text-shadow: 0 0 8px rgba(64, 158, 255, 0.3);
 }
 
 .action-switch .action-right.active {
-  color: #d63e3e;
   font-weight: 600;
   text-shadow: 0 0 8px rgba(64, 158, 255, 0.3);
 }
 
 .action-switch span:hover {
-  color: #409eff;
+  color: var(--project-theme-color);
 }
 
 .search-section {
@@ -1370,25 +1335,14 @@ onMounted(async () => {
 }
 
 .search-btn {
-  background: #409eff 0%;
-  border: none;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.search-btn.switch-theme {
-  background: #d63e3e 0%;
+  background: var(--project-theme-color);
   border: none;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .search-btn:hover {
-  background: #1e40af 100%;
-}
-
-.search-btn.switch-theme:hover {
-  background: #8d1818 100%;
+  background: color-mix(in srgb, var(--project-theme-color) 70%, black);
 }
 
 /* 筛选器 样式 */
