@@ -1,8 +1,8 @@
 import { http, mockApi } from './http'
-import type { Project, ProjectProgress } from '@/types'
+import type { Project, ProjectBasic, ProjectDetail, ProjectProgress } from '@/types'
 
 export const projectApi = {
-  getProjects: async (): Promise<Project[]> => {
+  getProjects: async (): Promise<ProjectBasic[]> => {
     // Use mock API for development
     return mockApi.getProjects()
     
@@ -11,7 +11,7 @@ export const projectApi = {
     // return response.data
   },
 
-  getProject: async (id: string): Promise<Project> => {
+  getProject: async (id: number): Promise<ProjectDetail> => {
     // Mock implementation
     const projects = await mockApi.getProjects()
     const project = projects.find(p => p.id === id)

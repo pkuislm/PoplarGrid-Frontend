@@ -84,12 +84,12 @@
                 v-for="item in participant_filter_options"
                 :key="item.id"
                 :value="item"
-                class="h-[3vh]"
+                class="filter-select-option"
               >
                 <div class="participant-option-display">
                   <div class="flex items-center">
                     <el-image
-                      class="h-[2vh] w-[2vh] rounded-full"
+                      class="h-[8vh] w-[8vh] rounded-full"
                       :src="item.avatar"
                       fit="cover"
                     />
@@ -117,10 +117,10 @@
             >
               <el-option label="全部类型" value="" />
               <el-option
-                v-for="tag in syncStore.projectTags"
+                v-for="tag in all_worksets"
                 :key="tag.id"
-                :label="tag.name"
-                :value="tag.name"
+                :label="tag.label"
+                :value="tag.id"
               />
             </el-select>
           </div>
@@ -269,7 +269,7 @@
             show-header="false"
             table-layout="fix"
             @expand-change="handleExpandChange"
-            :expand-row-keys="expandRowKeys"
+            :expand-row-keys="expand_row_keys"
             row-key="id"
           >
             <!-- 将整个表格行作为一列，便于管理样式 -->
@@ -286,8 +286,8 @@
                     <!-- 项目编号与项目集 -->
                     <div class="project-type mr-2">
                       <el-tag effect="dark" class="type-tag" size="large">
-                        {{ scope.row.type ? scope.row.type : "无分类" }} -
-                        {{ scope.row.serialNumber }}
+                        {{ all_worksets[scope.row.worksetId].label }} -
+                        {{ scope.row.worksetIndex }}
                       </el-tag>
                     </div>
                     <!-- 项目名 -->
@@ -297,7 +297,7 @@
                         :underline="false"
                         class="project-link"
                       >
-                        {{ scope.row.name }}
+                        {{ scope.row.title }}
                       </el-link>
                     </div>
                   </div>
@@ -316,12 +316,10 @@
                       >
                         <span class="progress-label">{{ label }}</span>
                         <component
-                          :is="
-                            getProgressIcon(scope.row.workStatus, index).icon
-                          "
+                          :is="getProgressIcon(scope.row.status, index).icon"
                           class="progress-icon"
                           :class="
-                            getProgressIcon(scope.row.workStatus, index).class
+                            getProgressIcon(scope.row.status, index).class
                           "
                         />
                       </div>
@@ -330,13 +328,15 @@
                         <component
                           :is="
                             pub_options.find(
-                              (item) => item.value === scope.row.publishStatus
+                              (item) =>
+                                item.value === Number(scope.row.isPublished)
                             )?.icon
                           "
                           class="progress-icon"
                           :class="
                             pub_options.find(
-                              (item) => item.value === scope.row.publishStatus
+                              (item) =>
+                                item.value === Number(scope.row.isPublished)
                             )?.class
                           "
                         />
@@ -350,7 +350,16 @@
             <!-- 展开按钮 -->
             <el-table-column type="expand" width="50">
               <template #default="scope">
-                <ProjectTableSpan :project="scope.row" />
+                <div
+                  v-if="project_detail_loading"
+                  class="project-detail-loading"
+                >
+                  <el-skeleton :rows="5" animated />
+                </div>
+                <ProjectTableSpan
+                  v-else
+                  :project="detailed_project_page.find(item => item.id === scope.row.id)!"
+                />
               </template>
             </el-table-column>
           </el-table>
@@ -403,15 +412,17 @@ import { useSyncStore } from "@/stores/sync";
 import { useAuthStore } from "@/stores/auth";
 import ProjectTableSpan from "@/components/ProjectTableSpan.vue";
 import { membersApi } from "@/api/members";
-import { SyncedProject, User } from "@/types";
+import { ProjectBasic, ProjectDetail, User } from "@/types";
+import { useProjectsStore } from "@/stores/projects";
 
 const router = useRouter();
 const syncStore = useSyncStore();
 const authStore = useAuthStore();
+const projectStore = useProjectsStore();
 
 const typeFilter = ref("");
 const searchQuery = ref("");
-const expandRowKeys = ref<any[]>([]);
+const expand_row_keys = ref<any[]>([]); // 保证表格同一时间只有一行被展开
 
 // 筛选器相关
 const my_filter = ref<boolean>(false);
@@ -493,12 +504,33 @@ const pub_options = [
 const current_page = ref<number>(1);
 const page_size = 15;
 
+// 项目集相关
+const all_worksets = [
+  {
+    id: 1,
+    label: "未分类",
+  },
+  {
+    id: 2,
+    label: "工作集1",
+  },
+  {
+    id: 3,
+    label: "工作集2",
+  },
+  {
+    id: 4,
+    label: "工作集3",
+  },
+]; // 项目集列表
+
 // 总项目数
 const total_projects = ref<number>(1024);
 
-// 显示的项目页
-const project_page = ref<SyncedProject[]>([]);
+const project_page = ref<ProjectBasic[]>([]); // 显示的项目页
+const detailed_project_page = ref<ProjectDetail[]>([]); // 详细的项目缓存
 const project_page_loading = ref<boolean>(true); // 当前的表格页是否正在加载
+const project_detail_loading = ref<boolean>(false); // 项目详情页是否正在加载
 
 // 颜色主题
 const color_theme_1 = ref<string>("");
@@ -524,23 +556,29 @@ const navigateToProject = (project: any) => {
 const switchMyFilter = () => {
   my_filter.value = !my_filter.value;
   handleMyFilterChange(my_filter.value);
-}
+};
 
 const handleMyFilterChange = async (value: boolean) => {
   if (value === true) {
     // TODO by influ3nza:
     // 按照本用户搜索项目，清空所有筛选条件
     project_page_loading.value = true;
-    await syncStore.syncProjects();
-    project_page.value = syncStore.syncedProjects;
+    await projectStore.fetchProjects();
+    project_page.value = projectStore.projects;
     project_page_loading.value = false;
+
+    // TODO by influ3nza:
+    // 在每一次取项目页的时候，清空本地详细项目缓存
+    detailed_project_page.value = [];
   } else {
     // TODO by influ3nza:
     // 搜索全部项目，清空所有筛选条件
     project_page_loading.value = true;
-    await syncStore.syncProjects();
-    project_page.value = syncStore.syncedProjects;
+    await projectStore.fetchProjects();
+    project_page.value = projectStore.projects;
     project_page_loading.value = false;
+
+    detailed_project_page.value = [];
   }
 
   updateGlobalThemeColor();
@@ -548,7 +586,21 @@ const handleMyFilterChange = async (value: boolean) => {
 
 const handleExpandChange = async (row: any, expandedRows: any[]) => {
   // 保证表格在同一时刻是有一行为展开状态
-  expandRowKeys.value = expandedRows.length > 0 ? [row.id] : [];
+  expand_row_keys.value = expandedRows.length > 0 ? [row.id] : [];
+
+  // 检查这一行是否已经缓存过
+  if (detailed_project_page.value.some((p) => p.id === row.id)) {
+    // 如果已经缓存过，则不需要重新请求
+    return;
+  } else {
+    // 如果没有缓存过，则请求项目详情
+    project_detail_loading.value = true;
+
+    await projectStore.fetchProject(row.id);
+    detailed_project_page.value.push(projectStore.projectDetail!);
+
+    project_detail_loading.value = false;
+  }
 };
 
 const handleCurrentPageChange = async (page: number) => {
@@ -560,10 +612,13 @@ const handleCurrentPageChange = async (page: number) => {
 };
 
 const handleParticipantFilterChange = async (query: string) => {
+  // 每当成员筛选器的值发生变化，则请求一次符合的成员
   if (query) {
     participant_filter_loading.value = true;
 
     try {
+      // TODO by influ3nza:
+      // 根据字符串查询所有成员
       const users = await membersApi.searchUsers(query);
       participant_filter_options.value = users;
     } catch (error) {
@@ -630,11 +685,13 @@ const updateGlobalThemeColor = () => {
 
 onMounted(async () => {
   await Promise.all([
-    syncStore.fetchSyncedProjects(),
-    syncStore.fetchProjectTags(),
+    projectStore.fetchProjects(),
+
+    // TODO by influ3nza:
+    // 请求项目集信息
   ]);
 
-  project_page.value = syncStore.syncedProjects;
+  project_page.value = projectStore.projects;
   project_page_loading.value = false;
 
   // 获取颜色主题
@@ -748,6 +805,9 @@ onMounted(async () => {
 .project-name {
   padding: 8px 12px;
   padding-left: 0;
+  display: flex;
+  text-align: left;
+  justify-content: left;
 }
 
 .project-link {
@@ -772,7 +832,7 @@ onMounted(async () => {
 
 .project-type {
   display: flex;
-  justify-content: center;
+  justify-content: left;
   align-items: center;
   min-width: 10vw;
 }
@@ -792,6 +852,7 @@ onMounted(async () => {
   align-items: center;
   gap: 16px;
   padding: 8px;
+  min-width: 22vw;
 }
 
 .progress-item {
@@ -818,6 +879,13 @@ onMounted(async () => {
 .progress-icon {
   width: 16px;
   height: 16px;
+}
+
+.project-detail-loading {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .bottom-pagination {
@@ -1208,6 +1276,10 @@ onMounted(async () => {
 
 .filter-select {
   width: 200px;
+}
+
+.filter-select-option {
+  height: 10vh;
 }
 
 .section-header {

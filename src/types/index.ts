@@ -8,6 +8,13 @@ export interface User {
   createdAt?: string
 }
 
+export interface MemberLabor {
+  joinedTime: string // 加入时间
+  laborRole: number // 成员在项目中的角色，使用掩码
+  nickname: string // 昵称
+  user_id: number // 用户ID
+}
+
 export interface Project {
   id: number
   name: string
@@ -27,6 +34,26 @@ export interface Project {
   ownerId: string // 项目创建者ID
   managerId?: string // 项目负责人ID（可以与创建者不同）
   members: ProjectMember[] // 项目成员列表
+}
+
+export interface ProjectBasic {
+  allowAutoJoin: boolean // 是否允许自动加入
+  id: number // 项目id，主键
+  isHidden: boolean // 是否隐藏
+  isPublished: boolean // 是否已发布
+  labors: MemberLabor[] // 成员分工信息
+  legacyId: number // 旧系统中的项目id
+  moetranId: string // 龙译项目id
+  status: number // 项目状态，使用掩码
+  title: string // 项目标题
+  worksetId: number // 所属工作集id
+  worksetIndex: number // 项目处于工作集中的编号
+}
+
+export interface ProjectDetail extends ProjectBasic {
+  createdAt: string // 创建时间
+  description: string // 项目描述
+  updatedAt: string // 更新时间
 }
 
 export interface ProjectProgress {

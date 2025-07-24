@@ -6,8 +6,8 @@
         <div class="project-image-container">
           <el-image
             class="project-image"
-            :key="project.coverImage"
-            :src="project.coverImage"
+            :key="project.id"
+            :src="project.id"
             fit="contain"
             lazy
           ></el-image>
@@ -25,7 +25,7 @@
                     图源
                   </div>
                 </template>
-                {{ project.imageSource || "暂无" }}
+                {{ project.labors.find(item => item.laborRole === 0)?.nickname || "暂无" }}
               </el-descriptions-item>
 
               <el-descriptions-item>
@@ -35,7 +35,7 @@
                     美工
                   </div>
                 </template>
-                {{ project.artist || "暂无" }}
+                {{ project.labors.find(item => item.laborRole === 4)?.nickname || "暂无" }}
               </el-descriptions-item>
 
               <el-descriptions-item>
@@ -45,7 +45,7 @@
                     翻译
                   </div>
                 </template>
-                {{ project.translator || "暂无" }}
+                {{ project.labors.find(item => item.laborRole === 1)?.nickname || "暂无" }}
               </el-descriptions-item>
 
               <el-descriptions-item>
@@ -55,7 +55,7 @@
                     校对
                   </div>
                 </template>
-                {{ project.proofreader || "暂无" }}
+                {{ project.labors.find(item => item.laborRole === 2)?.nickname || "暂无" }}
               </el-descriptions-item>
 
               <el-descriptions-item>
@@ -65,7 +65,7 @@
                     嵌字
                   </div>
                 </template>
-                {{ project.typesetter || "暂无" }}
+                {{ project.labors.find(item => item.laborRole === 3)?.nickname || "暂无" }}
               </el-descriptions-item>
 
               <el-descriptions-item>
@@ -75,7 +75,7 @@
                     审核
                   </div>
                 </template>
-                {{ project.reviewer || "暂无" }}
+                {{ project.labors.find(item => item.laborRole === 5)?.nickname || "暂无" }}
               </el-descriptions-item>
             </el-descriptions>
           </div>
@@ -145,13 +145,19 @@ import {
   Stamp,
   CircleCheck,
 } from "@element-plus/icons-vue";
-import type { SyncedProject } from "@/types";
+import type { ProjectDetail } from "@/types";
+import { onMounted } from "vue";
 
 interface Props {
-  project: SyncedProject;
+  project: ProjectDetail;
 }
 
 defineProps<Props>();
+
+onMounted(() => {
+  // TODO by influ3nza:
+  // 获取项目的封面图
+});
 </script>
 
 <style scoped>

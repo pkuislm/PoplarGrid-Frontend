@@ -2,6 +2,7 @@ import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import { useConfigStore } from '@/stores/config'
 import { ElMessage } from 'element-plus'
+import { isHidden } from 'element-plus/es/components/focus-trap/index.mjs'
 
 const createHttpClient = () => {
   const client = axios.create({
@@ -339,176 +340,58 @@ export const mockApi = {
     await new Promise(resolve => setTimeout(resolve, 500))
     return [
       {
-        id: '1',
-        name: '[天気輪 (甘露アメ)] そんな愛ならいらない2～アリスなんかじゃないのに隣のお兄さんがアリスってよんできてなんか怖い～ [DL版]',
-        description: '热门漫画翻译项目',
-        sourceLanguage: 'ja',
-        targetLanguages: ['zh-CN'],
-        status: 'active',
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-15',
-        coverImage: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=400',
-        ownerId: '1',
-        managerId: '1', // 项目负责人，可以与创建者不同
-        teamId: 'team1',
-        projectSetId: 'ps1',
-        progress: {
-          translation: 75,
-          proofreading: 45,
-          typesetting: 'in_progress',
-          review: 'not_reviewed',
-          totalSources: 200,
-          completedSources: 150
-        },
-        members: [
-          {
-            id: 'member1',
-            userId: '1',
-            user: { id: '1', name: 'admin', email: 'admin@example.com', isAdmin: true },
-            projectId: '1',
-            roles: ['translator', 'proofreader'],
-            joinedAt: '2024-01-01',
-            status: 'active'
-          },
-          {
-            id: 'member2',
-            userId: '2',
-            user: { id: '2', name: 'user', email: 'user@example.com', isAdmin: false },
-            projectId: '1',
-            roles: ['typesetter'],
-            joinedAt: '2024-01-02',
-            status: 'active'
-          }
+        allowAutoJoin: true,
+        id: 120,
+        isHidden: false,
+        isPublished: false,
+        labors: [
+          {joinedTime: "MOCKTIME1", laborRole: 1, nickname: "翻译员1", user_id: 1},{joinedTime: "MOCKTIME2", laborRole: 2, nickname: "校对员1", user_id: 3}
         ],
-        files: [
-          {
-            id: 'file1',
-            name: 'page_001.jpg',
-            type: 'image/jpeg',
-            size: 1024000,
-            uploadedAt: '2024-01-01',
-            imageUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=800',
-            sources: []
-          },
-          {
-            id: 'file2',
-            name: 'page_002.jpg',
-            type: 'image/jpeg',
-            size: 1024000,
-            uploadedAt: '2024-01-01',
-            imageUrl: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=800',
-            sources: []
-          },
-          {
-            id: 'file3',
-            name: 'page_003.jpg',
-            type: 'image/jpeg',
-            size: 1024000,
-            uploadedAt: '2024-01-01',
-            imageUrl: 'https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=800',
-            sources: []
-          }
-        ]
+        legacyId: 1408,
+        moetranId: 'mock-project-1',
+        status: 63,
+        title: '[天気輪 (甘露アメ)] そんな愛ならいらない2～アリスなんかじゃないのに隣のお兄さんがアリスってよんできてなんか怖い～ [DL版]',
+        worksetId: 1,
+        worksetIndex: 10,
+        createdAt: "TIME1",
+        description: "这是一个模拟的项目描述",
+        updatedAt: "TIME2",
       },
       {
-        id: '2',
-        name: '海贼王 第1000话',
-        description: '最新话翻译',
-        sourceLanguage: 'ja',
-        targetLanguages: ['zh-CN'],
-        status: 'completed',
-        createdAt: '2024-01-10',
-        updatedAt: '2024-01-20',
-        completedAt: '2024-01-20',
-        coverImage: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=400',
-        ownerId: '1',
-        managerId: '2', // 项目负责人与创建者不同
-        teamId: 'team1',
-        projectSetId: 'ps2',
-        progress: {
-          translation: 100,
-          proofreading: 100,
-          typesetting: 'completed',
-          review: 'reviewed',
-          totalSources: 50,
-          completedSources: 50
-        },
-        members: [
-          {
-            id: 'member3',
-            userId: '1',
-            user: { id: '1', name: 'admin', email: 'admin@example.com', isAdmin: true },
-            projectId: '2',
-            roles: ['translator'],
-            joinedAt: '2024-01-10',
-            status: 'active'
-          }
+        allowAutoJoin: true,
+        id: 122,
+        isHidden: false,
+        isPublished: false,
+        labors: [
+          {joinedTime: "MOCKTIME3", laborRole: 1, nickname: "翻译员2", user_id: 2},{joinedTime: "MOCKTIME4", laborRole: 3, nickname: "嵌字员1", user_id: 5}
         ],
-        files: [
-          {
-            id: 'file4',
-            name: 'page_001.jpg',
-            type: 'image/jpeg',
-            size: 1024000,
-            uploadedAt: '2024-01-10',
-            imageUrl: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=800',
-            sources: []
-          },
-          {
-            id: 'file5',
-            name: 'page_002.jpg',
-            type: 'image/jpeg',
-            size: 1024000,
-            uploadedAt: '2024-01-10',
-            imageUrl: 'https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=800',
-            sources: []
-          }
-        ]
+        title: '[ しゅにち関数 ] 生徒達と仲良くHする本〜ブルアカ総集編〜',
+        legacyId: 1410,
+        moetranId: 'mock-project-2',
+        status: 66,
+        worksetId: 1,
+        worksetIndex: 12,
+        createdAt: "TIME1",
+        description: "这是一个模拟的项目描述",
+        updatedAt: "TIME2"
       },
       {
-        id: '3',
-        name: '鬼灭之刃 第5卷',
-        description: '人气漫画翻译',
-        sourceLanguage: 'ja',
-        targetLanguages: ['zh-CN'],
-        status: 'completed',
-        createdAt: '2023-12-15',
-        updatedAt: '2024-01-05',
-        completedAt: '2024-01-05',
-        coverImage: 'https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=400',
-        ownerId: '2',
-        teamId: 'team2',
-        projectSetId: 'ps3',
-        progress: {
-          translation: 100,
-          proofreading: 100,
-          typesetting: 'completed',
-          review: 'reviewed',
-          totalSources: 180,
-          completedSources: 180
-        },
-        members: [
-          {
-            id: 'member4',
-            userId: '2',
-            user: { id: '2', name: 'user', email: 'user@example.com', isAdmin: false },
-            projectId: '3',
-            roles: ['translator', 'proofreader'],
-            joinedAt: '2023-12-15',
-            status: 'active'
-          }
+        allowAutoJoin: true,
+        id: 123,
+        isHidden: false,
+        isPublished: false,
+        labors: [
+          {joinedTime: "MOCKTIME3", laborRole: 1, nickname: "翻译员2", user_id: 2},{joinedTime: "MOCKTIME4", laborRole: 3, nickname: "嵌字员1", user_id: 5}
         ],
-        files: [
-          {
-            id: 'file6',
-            name: 'page_001.jpg',
-            type: 'image/jpeg',
-            size: 1024000,
-            uploadedAt: '2023-12-15',
-            imageUrl: 'https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=800',
-            sources: []
-          }
-        ]
+        title: '[ しゅにち関数 ] 生徒達と仲良くHする本〜ブルアカ総集編〜',
+        legacyId: 1411,
+        moetranId: 'mock-project-2',
+        status: 66,
+        worksetId: 2,
+        worksetIndex: 8,
+        createdAt: "TIME1",
+        description: "这是一个模拟的项目描述",
+        updatedAt: "TIME2"
       }
     ]
   },
