@@ -1,28 +1,32 @@
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { ref, computed, toRaw } from "vue";
 import type {
   Project,
   ProjectBasic,
   ProjectDetail,
+  ProjectFile,
   ProjectProgress,
 } from "@/types";
 import { projectApi } from "@/api/projects";
 import { useTeamsStore } from "@/stores/teams";
 
 export const useProjectsStore = defineStore("projects", () => {
-  const projects_page = ref<ProjectBasic[]>([]); // 用于传递单页项目信息
-  const project_detail = ref<ProjectDetail | null>(null); // 用于逐个请求项目
-  const currentProject = ref<Project | null>(null);
-  const isLoading = ref(false);
-  const error = ref<string | null>(null);
+  const projects_page = ref<ProjectBasic[]>([]); // 单页项目信息
+  const project_detail = ref<ProjectDetail | null>(null); // 单个项目详细信息
+  const project_file_page = ref<ProjectFile[]>([]); // 单页项目文件信息
 
+  const projects_page_loading = ref<boolean>(false); // 项目分页是否正在加载
+  const project_detail_loading = ref<boolean>(false); // 项目详细是否正在加载
+  const file_loading = ref<boolean>(false); // 项目文件是否正在加载
+  
+  const error = ref<string | null>(null);
   const teamsStore = useTeamsStore();
 
   // 根据当前团队和项目集筛选项目
   const filteredProjects = computed(() => {
     let filtered = projects_page.value;
 
-    return filtered;
+    return toRaw(filtered);
   });
 
   const activeProjects = computed(() =>
@@ -34,7 +38,7 @@ export const useProjectsStore = defineStore("projects", () => {
   );
 
   const fetchProjects = async () => {
-    isLoading.value = true;
+    projects_page_loading.value = true;
     error.value = null;
 
     try {
@@ -43,12 +47,12 @@ export const useProjectsStore = defineStore("projects", () => {
     } catch (err: any) {
       error.value = err.message || "获取项目列表失败";
     } finally {
-      isLoading.value = false;
+      projects_page_loading.value = false;
     }
   };
 
   const fetchProject = async (id: number) => {
-    isLoading.value = true;
+    project_detail_loading.value = true;
     error.value = null;
 
     try {
@@ -59,7 +63,23 @@ export const useProjectsStore = defineStore("projects", () => {
       error.value = err.message || "获取项目详情失败";
       return null;
     } finally {
-      isLoading.value = false;
+      project_detail_loading.value = false;
+    }
+  };
+
+  const fetchProjectFiles = async (id: number) => {
+    file_loading.value = true;
+    error.value = null;
+
+    try {
+      const files = await projectApi.getFiles(id);
+      project_file_page.value = files;
+      return files;
+    } catch (err: any) {
+      error.value = err.message || "获取项目文件失败";
+      return null;
+    } finally {
+      file_loading.value = false;
     }
   };
 
@@ -114,16 +134,18 @@ export const useProjectsStore = defineStore("projects", () => {
   };
 
   return {
-    projects: computed(() => filteredProjects.value),
-    allProjects: computed(() => projects_page.value),
-    currentProject: computed(() => currentProject.value),
     projectDetail: computed(() => project_detail.value),
+    projectPage: computed(() => projects_page.value),
+    projectFile: computed(() => project_file_page.value),
     activeProjects,
     completedProjects,
-    isLoading: computed(() => isLoading.value),
+    projects_page_loading: computed(() => projects_page_loading.value),
+    project_detail_loading: computed(() => project_detail_loading.value),
+    file_loading: computed(() => file_loading.value),
     error: computed(() => error.value),
     fetchProjects,
     fetchProject,
+    fetchProjectFiles,
     updateProjectProgress,
     createProject,
   };

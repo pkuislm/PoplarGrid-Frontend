@@ -15,27 +15,7 @@ export interface MemberLabor {
   user_id: number // 用户ID
 }
 
-export interface Project {
-  id: number
-  name: string
-  description?: string
-  sourceLanguage: string
-  targetLanguages: string[]
-  createdAt: string
-  updatedAt: string
-  completedAt?: string // 新增完成时间字段
-  status: 'active' | 'completed' | 'paused'
-  progress: ProjectProgress
-  team?: Team
-  teamId: string // 所属团队ID
-  projectSetId?: string // 所属项目集ID
-  files: ProjectFile[]
-  coverImage?: string // 新增封面图片字段
-  ownerId: string // 项目创建者ID
-  managerId?: string // 项目负责人ID（可以与创建者不同）
-  members: ProjectMember[] // 项目成员列表
-}
-
+// 项目基本信息
 export interface ProjectBasic {
   allowAutoJoin: boolean // 是否允许自动加入
   id: number // 项目id，主键
@@ -50,10 +30,22 @@ export interface ProjectBasic {
   worksetIndex: number // 项目处于工作集中的编号
 }
 
+// 项目详细信息
 export interface ProjectDetail extends ProjectBasic {
   createdAt: string // 创建时间
   description: string // 项目描述
   updatedAt: string // 更新时间
+}
+
+// 项目文件信息
+export interface ProjectFile {
+  id: string // 文件id
+  name: string // 文件名
+  coverUrl: string // 封面缩略图url
+  fullUrl: string // 完整图url
+  sourceCount: number // 总标记数量
+  translatedSourceCount: number // 已翻译标记数量
+  checkedSourceCount: number // 已校对标记数量
 }
 
 export interface ProjectProgress {
@@ -63,16 +55,6 @@ export interface ProjectProgress {
   review: 'not_reviewed' | 'reviewing' | 'reviewed'
   totalSources: number
   completedSources: number
-}
-
-export interface ProjectFile {
-  id: string
-  name: string
-  type: string
-  size: number
-  uploadedAt: string
-  sources: Source[]
-  imageUrl?: string // 新增图片URL字段
 }
 
 export interface Source {

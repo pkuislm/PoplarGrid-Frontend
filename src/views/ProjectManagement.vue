@@ -41,11 +41,20 @@
             </span>
           </div>
           <div class="action-buttons">
-            <el-button size="large" @click="" class="reset-btn">
+            <el-button
+              size="large"
+              @click="handleFilterReset"
+              class="reset-btn"
+            >
               <el-icon><RefreshLeft /></el-icon>
               &nbsp; 重置筛选
             </el-button>
-            <el-button type="primary" size="large" @click="" class="search-btn">
+            <el-button
+              type="primary"
+              size="large"
+              @click="handleCombinedSearch"
+              class="search-btn"
+            >
               <el-icon><Search /></el-icon>
               &nbsp; 搜索
             </el-button>
@@ -59,7 +68,7 @@
           <div class="filter-item flex-1">
             <label class="filter-label">项目名称或编号</label>
             <el-input
-              v-model="searchQuery"
+              v-model="title_filter"
               placeholder="搜索项目名称或编号"
               :prefix-icon="Search"
               class="search-input"
@@ -67,55 +76,57 @@
               size="large"
             />
           </div>
-          <div class="filter-item">
-            <label class="filter-label">参与人员</label>
-            <el-select
-              v-model="participant_filter"
-              filterable
-              remote
-              reserve-keyword
-              placeholder="查找参与人员"
-              :remote-method="handleParticipantFilterChange"
-              :loading="participant_filter_loading"
-              class="filter-select"
-              size="large"
-            >
-              <el-option
-                v-for="item in participant_filter_options"
-                :key="item.id"
-                :value="item"
-                class="filter-select-option"
+          <transition name="my-filter">
+            <div class="filter-item" v-if="!my_filter">
+              <label class="filter-label">参与人员</label>
+              <el-select
+                v-model="participant_filter"
+                filterable
+                remote
+                clearable
+                reserve-keyword
+                placeholder="查找参与人员"
+                :remote-method="handleParticipantFilterChange"
+                :loading="participant_filter_loading"
+                class="filter-select"
+                size="large"
               >
-                <div class="participant-option-display">
-                  <div class="flex items-center">
-                    <el-image
-                      class="h-[8vh] w-[8vh] rounded-full"
-                      :src="item.avatar"
-                      fit="cover"
-                    />
+                <el-option
+                  v-for="item in participant_filter_options"
+                  :key="item.id"
+                  :value="item"
+                  class="filter-select-option"
+                >
+                  <div class="participant-option-display">
+                    <div class="flex items-center">
+                      <el-image
+                        class="h-[8vh] w-[8vh] rounded-full"
+                        :src="item.avatar"
+                        fit="cover"
+                      />
+                    </div>
+                    <div class="flex items-center font-semibold text-sm">
+                      <span>{{ item.name }}</span>
+                    </div>
                   </div>
+                </el-option>
+                <template #label>
                   <div class="flex items-center font-semibold text-sm">
-                    <span>{{ item.name }}</span>
+                    <span>{{ participant_filter?.name }}</span>
                   </div>
-                </div>
-              </el-option>
-              <template #label>
-                <div class="flex items-center font-semibold text-sm">
-                  <span>{{ participant_filter?.name }}</span>
-                </div>
-              </template>
-            </el-select>
-          </div>
+                </template>
+              </el-select>
+            </div>
+          </transition>
           <div class="filter-item">
             <label class="filter-label">所属项目集</label>
             <el-select
-              v-model="typeFilter"
+              v-model="workset_filter"
               placeholder="选择项目集"
-              clearable
               class="filter-select"
               size="large"
             >
-              <el-option label="全部类型" value="" />
+              <el-option label="全部类型" :value="null" />
               <el-option
                 v-for="tag in all_worksets"
                 :key="tag.id"
@@ -233,7 +244,7 @@
     <!-- 项目表格 -->
     <div
       class="table-container bg-white dark:bg-gray-800 rounded-lg shadow-lg"
-      v-loading="project_page_loading"
+      v-loading="projectStore.projects_page_loading"
     >
       <!-- 表格标题栏 -->
       <div class="table-header">
@@ -264,7 +275,7 @@
       <div class="table-content">
         <div class="overflow-x-auto">
           <el-table
-            :data="project_page"
+            :data="projectStore.projectPage"
             class="project-table"
             show-header="false"
             table-layout="fix"
@@ -351,7 +362,7 @@
             <el-table-column type="expand" width="50">
               <template #default="scope">
                 <div
-                  v-if="project_detail_loading"
+                  v-if="detailed_project_loading"
                   class="project-detail-loading"
                 >
                   <el-skeleton :rows="5" animated />
@@ -359,6 +370,7 @@
                 <ProjectTableSpan
                   v-else
                   :project="detailed_project_page.find(item => item.id === scope.row.id)!"
+                  :color_theme="my_filter ? color_theme_2 : color_theme_1"
                 />
               </template>
             </el-table-column>
@@ -414,25 +426,32 @@ import ProjectTableSpan from "@/components/ProjectTableSpan.vue";
 import { membersApi } from "@/api/members";
 import { ProjectBasic, ProjectDetail, User } from "@/types";
 import { useProjectsStore } from "@/stores/projects";
+import { title } from "process";
 
 const router = useRouter();
 const syncStore = useSyncStore();
 const authStore = useAuthStore();
 const projectStore = useProjectsStore();
 
-const typeFilter = ref("");
-const searchQuery = ref("");
 const expand_row_keys = ref<any[]>([]); // 保证表格同一时间只有一行被展开
 
 // 筛选器相关
-const my_filter = ref<boolean>(false);
+const my_filter = ref<boolean>(false); // 是否只显示本用户的项目
+
 const project_status_filter = ref<number[]>([3, 3, 3, 3]); // 项目分管阶段
 const status_filter_disable = ref<boolean[]>([false, false, false, false]); // 项目分管阶段筛选器是否可操作
+
 const pub_status_filter = ref<number>(2); // 发布状况
 const order_mode_filter = ref<number>(0); // 显示排序方式
 const participant_filter = ref<User | null>(null); // 参与人员
+// TODO by influ3nza:
+// 这个之后移动到UserStore里
 const participant_filter_loading = ref<boolean>(false); // 参与人员搜索加载状态
 const participant_filter_options = ref<User[]>([]); // 传回参与人员筛选器的结果
+
+const title_filter = ref<string>(""); // 项目标题筛选
+const workset_filter = ref<number | null>(null); // 项目集筛选
+
 const status_fields = ["翻译", "校对", "嵌字", "审核"];
 const status_fields_short = ["翻", "校", "嵌", "审"];
 const status_options = [
@@ -526,11 +545,8 @@ const all_worksets = [
 
 // 总项目数
 const total_projects = ref<number>(1024);
-
-const project_page = ref<ProjectBasic[]>([]); // 显示的项目页
 const detailed_project_page = ref<ProjectDetail[]>([]); // 详细的项目缓存
-const project_page_loading = ref<boolean>(true); // 当前的表格页是否正在加载
-const project_detail_loading = ref<boolean>(false); // 项目详情页是否正在加载
+const detailed_project_loading = ref<boolean>(false); // 详细项目是否在加载，这里无法使用store中的对应变量
 
 // 颜色主题
 const color_theme_1 = ref<string>("");
@@ -545,12 +561,8 @@ const getProgressIcon = (status: number, index: number) => {
 };
 
 const navigateToProject = (project: any) => {
-  if (project.externalProjectId) {
     // 跳转到项目详情页
     router.push(`/projects/${project.id}`);
-  } else {
-    ElMessage.info("该项目暂无详情页面");
-  }
 };
 
 const switchMyFilter = () => {
@@ -559,29 +571,28 @@ const switchMyFilter = () => {
 };
 
 const handleMyFilterChange = async (value: boolean) => {
+  // 清空所有筛选条件
+  handleFilterReset();
+
   if (value === true) {
     // TODO by influ3nza:
-    // 按照本用户搜索项目，清空所有筛选条件
-    project_page_loading.value = true;
+    // 按照本用户搜索项目
     await projectStore.fetchProjects();
-    project_page.value = projectStore.projects;
-    project_page_loading.value = false;
 
     // TODO by influ3nza:
-    // 在每一次取项目页的时候，清空本地详细项目缓存
+    // 在每一次取项目页的时候，清空本地详细项目缓存，且将展开行清空
     detailed_project_page.value = [];
   } else {
     // TODO by influ3nza:
-    // 搜索全部项目，清空所有筛选条件
-    project_page_loading.value = true;
+    // 搜索全部项目
     await projectStore.fetchProjects();
-    project_page.value = projectStore.projects;
-    project_page_loading.value = false;
 
     detailed_project_page.value = [];
   }
 
   updateGlobalThemeColor();
+  expand_row_keys.value = []; // 清空展开行
+  current_page.value = 1; // 重置到第一页
 };
 
 const handleExpandChange = async (row: any, expandedRows: any[]) => {
@@ -594,21 +605,23 @@ const handleExpandChange = async (row: any, expandedRows: any[]) => {
     return;
   } else {
     // 如果没有缓存过，则请求项目详情
-    project_detail_loading.value = true;
-
+    detailed_project_loading.value = true;
     await projectStore.fetchProject(row.id);
     detailed_project_page.value.push(projectStore.projectDetail!);
-
-    project_detail_loading.value = false;
+    detailed_project_loading.value = false;
   }
 };
 
 const handleCurrentPageChange = async (page: number) => {
   // 处理表格分页显示
   current_page.value = page;
+  expand_row_keys.value = [];
 
   // TODO by influ3nza:
   // query backend w/ page_serial, page_size, sort, status, tag_id g/ project[]
+  await projectStore.fetchProjects();
+
+  detailed_project_page.value = [];
 };
 
 const handleParticipantFilterChange = async (query: string) => {
@@ -669,6 +682,31 @@ const handleStatusFilterChange = (_: any) => {
   }
 };
 
+const handleFilterReset = () => {
+  // 重置所有筛选器的值
+  project_status_filter.value = [3, 3, 3, 3];
+  status_filter_disable.value = [false, false, false, false];
+  pub_status_filter.value = 2;
+  order_mode_filter.value = 0;
+
+  participant_filter.value = null;
+  participant_filter_options.value = [];
+
+  title_filter.value = "";
+  workset_filter.value = null;
+};
+
+const handleCombinedSearch = async () => {
+  // TODO by influ3nza:
+  // 处理综合搜索逻辑
+  current_page.value = 1; // 重置到第一页
+  expand_row_keys.value = []; // 取消展开行
+
+  await projectStore.fetchProjects();
+
+  detailed_project_page.value = [];
+};
+
 const updateGlobalThemeColor = () => {
   if (my_filter.value) {
     document.documentElement.style.setProperty(
@@ -690,9 +728,6 @@ onMounted(async () => {
     // TODO by influ3nza:
     // 请求项目集信息
   ]);
-
-  project_page.value = projectStore.projects;
-  project_page_loading.value = false;
 
   // 获取颜色主题
   color_theme_1.value = localStorage.getItem("color-theme-1") || "#3b82f6";
@@ -1111,35 +1146,6 @@ onMounted(async () => {
 }
 
 /* 展开样式 */
-.expand-content {
-  margin: 0 12px;
-  overflow: hidden;
-  transition: all 0.3s ease-in-out;
-}
-
-.expand-inner {
-  padding: 16px 24px;
-  background: #f8fafc;
-  border-radius: 8px;
-  margin: 8px 0;
-  border: 1px solid #e2e8f0;
-  transform: translateY(-10px);
-  opacity: 0;
-  animation: expandIn 0.3s ease-out forwards;
-}
-
-@keyframes expandIn {
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.dark .expand-inner {
-  background: #1e293b;
-  border-color: #475569;
-}
-
 /* 单元格项目样式 */
 .cell-item {
   display: flex;
@@ -1263,6 +1269,38 @@ onMounted(async () => {
   color: #374151;
   font-size: 14px;
   margin-bottom: 4px;
+}
+
+/* 筛选成员 */
+.my-filter-enter-active {
+  animation: expandIn 0.3s ease-out;
+}
+
+.my-filter-leave-active {
+  animation: expandOut 0.3s ease-out;
+}
+
+/* 筛选成员动画 */
+@keyframes expandIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes expandOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(10px);
+    opacity: 0;
+  }
 }
 
 .dark .filter-label {

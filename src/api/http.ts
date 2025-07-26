@@ -396,6 +396,48 @@ export const mockApi = {
     ]
   },
 
+  getFiles: async (projectId: number) => {
+    await new Promise(resolve => setTimeout(resolve, 700))
+    return [
+      {
+        id: `project_${projectId}_file_1`,
+        name: `文件_${projectId}_1.jpg`,
+        coverUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=400',
+        fullUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=800',
+        sourceCount: 10,
+        translatedSourceCount: 8,
+        checkedSourceCount: 5
+      },
+      {
+        id: `project_${projectId}_file_2`,
+        name: `文件_${projectId}_2.jpg`,
+        coverUrl: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=400',
+        fullUrl: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=800',
+        sourceCount: 12,
+        translatedSourceCount: 1,
+        checkedSourceCount: 0
+      },
+      {
+        id: `project_${projectId}_file_3`,
+        name: `文件_${projectId}_3.jpg`,
+        coverUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=400',
+        fullUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=800',
+        sourceCount: 11,
+        translatedSourceCount: 0,
+        checkedSourceCount: 0
+      },
+      {
+        id: `project_${projectId}_file_4`,
+        name: `文件_${projectId}_4.jpg`,
+        coverUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=400',
+        fullUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=800',
+        sourceCount: 0,
+        translatedSourceCount: 0,
+        checkedSourceCount: 0
+      },
+    ]
+  },
+
   getTimeBasedStatistics: async () => {
     await new Promise(resolve => setTimeout(resolve, 300))
     return generateTimeBasedMockData()

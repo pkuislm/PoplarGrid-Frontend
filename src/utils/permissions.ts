@@ -1,7 +1,7 @@
-import type { ProjectRole, RolePermissions, User, Project } from '@/types'
+import type { RolePermissions, User, ProjectDetail } from '@/types'
 
 // 获取角色权限
-export const getRolePermissions = (roles: ProjectRole[]): RolePermissions => {
+export const getRolePermissions = (roles: ProjectDetailRole[]): RolePermissions => {
   return {
     canTranslate: roles.includes('translator'),
     canProofread: roles.includes('proofreader'),
@@ -10,34 +10,34 @@ export const getRolePermissions = (roles: ProjectRole[]): RolePermissions => {
     canSetReviewStatus: roles.includes('reviewer'),
     canExportFiles: roles.includes('typesetter') || roles.includes('image_source') || roles.includes('artist'), // 嵌字、图源、美工可以导出文件
     canManageMembers: false, // 只有项目负责人可以管理成员
-    canEditProject: false // 只有项目负责人可以编辑项目
+    canEditProjectDetail: false // 只有项目负责人可以编辑项目
   }
 }
 
 // 检查用户是否为项目创建者
-export const isProjectOwner = (user: User, project: Project): boolean => {
-  return user.id === project.ownerId
+export const isProjectDetailOwner = (user: User, ProjectDetail: ProjectDetail): boolean => {
+  return user.id === ProjectDetail.ownerId
 }
 
 // 检查用户是否为项目负责人
-export const isProjectManager = (user: User, project: Project): boolean => {
-  return user.id === (project.managerId || project.ownerId)
+export const isProjectDetailManager = (user: User, ProjectDetail: ProjectDetail): boolean => {
+  return user.id === (ProjectDetail.managerId || ProjectDetail.ownerId)
 }
 
 // 检查用户是否为项目成员
-export const isProjectMember = (user: User, project: Project): boolean => {
-  return project.members.some(member => member.userId === user.id && member.status === 'active')
+export const isProjectDetailMember = (user: User, ProjectDetail: ProjectDetail): boolean => {
+  return ProjectDetail.members.some(member => member.userId === user.id && member.status === 'active')
 }
 
 // 获取用户在项目中的角色
-export const getUserProjectRoles = (user: User, project: Project): ProjectRole[] => {
-  const member = project.members.find(member => member.userId === user.id && member.status === 'active')
+export const getUserProjectDetailRoles = (user: User, ProjectDetail: ProjectDetail): ProjectDetailRole[] => {
+  const member = ProjectDetail.members.find(member => member.userId === user.id && member.status === 'active')
   return member?.roles || []
 }
 
 // 获取用户在项目中的权限
-export const getUserProjectPermissions = (user: User, project: Project): RolePermissions => {
-  if (isProjectManager(user, project)) {
+export const getUserProjectDetailPermissions = (user: User, ProjectDetail: ProjectDetail): RolePermissions => {
+  if (isProjectDetailManager(user, ProjectDetail)) {
     // 项目负责人拥有所有权限
     return {
       canTranslate: true,
@@ -47,16 +47,16 @@ export const getUserProjectPermissions = (user: User, project: Project): RolePer
       canSetReviewStatus: true,
       canExportFiles: true,
       canManageMembers: true,
-      canEditProject: true
+      canEditProjectDetail: true
     }
   }
   
-  const roles = getUserProjectRoles(user, project)
+  const roles = getUserProjectDetailRoles(user, ProjectDetail)
   return getRolePermissions(roles)
 }
 
 // 角色显示名称映射
-export const roleDisplayNames: Record<ProjectRole, string> = {
+export const roleDisplayNames: Record<ProjectDetailRole, string> = {
   image_source: '图源',
   artist: '美工',
   translator: '翻译',
@@ -66,12 +66,12 @@ export const roleDisplayNames: Record<ProjectRole, string> = {
 }
 
 // 获取角色显示名称
-export const getRoleDisplayName = (role: ProjectRole): string => {
+export const getRoleDisplayName = (role: ProjectDetailRole): string => {
   return roleDisplayNames[role] || role
 }
 
 // 获取角色颜色
-export const getRoleColor = (role: ProjectRole): string => {
+export const getRoleColor = (role: ProjectDetailRole): string => {
   const colors = {
     image_source: '#ef4444', // 红色
     artist: '#f97316', // 橙色
@@ -84,7 +84,7 @@ export const getRoleColor = (role: ProjectRole): string => {
 }
 
 // 验证角色组合是否合理
-export const validateRoleCombination = (roles: ProjectRole[]): { valid: boolean; message?: string } => {
+export const validateRoleCombination = (roles: ProjectDetailRole[]): { valid: boolean; message?: string } => {
   if (roles.length === 0) {
     return { valid: false, message: '至少需要选择一个角色' }
   }

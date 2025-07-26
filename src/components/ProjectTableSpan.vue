@@ -150,6 +150,7 @@ import { onMounted } from "vue";
 
 interface Props {
   project: ProjectDetail;
+  color_theme: string;
 }
 
 defineProps<Props>();
@@ -181,7 +182,7 @@ onMounted(() => {
 
 .project-content {
   width: 100%;
-  background-color: #f8f9fa;
+  background-color: rgba(from var(--project-theme-color) r g b / 0.2);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -196,11 +197,12 @@ onMounted(() => {
 .project-image-container {
   flex: 0 0 auto;
   width: 400px;
+  height: 568px;
 }
 
 .project-image {
   width: 100%;
-  height: 568px;
+  height: 100%;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -209,8 +211,8 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1vh;
-  min-height: 500px;
+  gap: 2vh;
+  height: 568px;
 }
 
 .project-members {
