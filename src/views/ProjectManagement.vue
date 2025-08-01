@@ -883,11 +883,11 @@ onMounted(async () => {
 
 .progress-container {
   display: flex;
-  justify-content: center;
+  justify-content: right;
   align-items: center;
   gap: 16px;
   padding: 8px;
-  min-width: 22vw;
+  min-width: 24vw;
 }
 
 .progress-item {

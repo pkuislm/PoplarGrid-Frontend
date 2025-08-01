@@ -7,10 +7,17 @@
           <el-image
             class="project-image"
             :key="project.id"
-            :src="project.id"
+            :src="projectStore.projectFile[0]?.fullUrl"
             fit="contain"
             lazy
-          ></el-image>
+          >
+            <template #error>
+              <el-skeleton-item
+                variant="image"
+                style="width: 100%; height: 100%"
+              />
+            </template>
+          </el-image>
         </div>
 
         <!-- 项目信息 -->
@@ -25,7 +32,10 @@
                     图源
                   </div>
                 </template>
-                {{ project.labors.find(item => item.laborRole === 0)?.nickname || "暂无" }}
+                {{
+                  project.labors.find((item) => item.laborRole === 0)
+                    ?.nickname || "暂无"
+                }}
               </el-descriptions-item>
 
               <el-descriptions-item>
@@ -35,7 +45,10 @@
                     美工
                   </div>
                 </template>
-                {{ project.labors.find(item => item.laborRole === 4)?.nickname || "暂无" }}
+                {{
+                  project.labors.find((item) => item.laborRole === 4)
+                    ?.nickname || "暂无"
+                }}
               </el-descriptions-item>
 
               <el-descriptions-item>
@@ -45,7 +58,10 @@
                     翻译
                   </div>
                 </template>
-                {{ project.labors.find(item => item.laborRole === 1)?.nickname || "暂无" }}
+                {{
+                  project.labors.find((item) => item.laborRole === 1)
+                    ?.nickname || "暂无"
+                }}
               </el-descriptions-item>
 
               <el-descriptions-item>
@@ -55,7 +71,10 @@
                     校对
                   </div>
                 </template>
-                {{ project.labors.find(item => item.laborRole === 2)?.nickname || "暂无" }}
+                {{
+                  project.labors.find((item) => item.laborRole === 2)
+                    ?.nickname || "暂无"
+                }}
               </el-descriptions-item>
 
               <el-descriptions-item>
@@ -65,7 +84,10 @@
                     嵌字
                   </div>
                 </template>
-                {{ project.labors.find(item => item.laborRole === 3)?.nickname || "暂无" }}
+                {{
+                  project.labors.find((item) => item.laborRole === 3)
+                    ?.nickname || "暂无"
+                }}
               </el-descriptions-item>
 
               <el-descriptions-item>
@@ -75,7 +97,10 @@
                     审核
                   </div>
                 </template>
-                {{ project.labors.find(item => item.laborRole === 5)?.nickname || "暂无" }}
+                {{
+                  project.labors.find((item) => item.laborRole === 5)
+                    ?.nickname || "暂无"
+                }}
               </el-descriptions-item>
             </el-descriptions>
           </div>
@@ -127,9 +152,13 @@
           </div>
 
           <!-- 备注 -->
-           <div class="project-notes">
-              <span>这是项目备注占位内容，标签的长度，例如'50px'。作为Form直接子元素的form-item会继承该值。可以使用auto。When you use ==, it performs a comparison but doesn't assign the value. The comparison returns true. </span>
-           </div>
+          <div class="project-notes">
+            <span
+              >这是项目备注占位内容，标签的长度，例如'50px'。作为Form直接子元素的form-item会继承该值。可以使用auto。When
+              you use ==, it performs a comparison but doesn't assign the value.
+              The comparison returns true.
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -147,17 +176,21 @@ import {
 } from "@element-plus/icons-vue";
 import type { ProjectDetail } from "@/types";
 import { onMounted } from "vue";
+import { useProjectsStore } from "@/stores/projects";
+
+const projectStore = useProjectsStore();
 
 interface Props {
   project: ProjectDetail;
   color_theme: string;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
-onMounted(() => {
+onMounted(async () => {
   // TODO by influ3nza:
   // 获取项目的封面图
+  await projectStore.fetchProjectFiles(props.project.id);
 });
 </script>
 

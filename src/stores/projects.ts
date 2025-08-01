@@ -20,8 +20,7 @@ export const useProjectsStore = defineStore("projects", () => {
   const file_loading = ref<boolean>(false); // 项目文件是否正在加载
   
   const error = ref<string | null>(null);
-  const teamsStore = useTeamsStore();
-
+  
   // 根据当前团队和项目集筛选项目
   const filteredProjects = computed(() => {
     let filtered = projects_page.value;

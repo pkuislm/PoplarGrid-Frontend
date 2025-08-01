@@ -1,9 +1,6 @@
 <template>
   <div class="space-y-6" v-if="projectStore.projectDetail">
     <div class="flex items-center space-x-4">
-      <el-button @click="goBackToProjects" :icon="ArrowLeft"
-        >返回项目列表</el-button
-      >
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
         {{ projectStore.projectDetail.title }}
       </h1>
@@ -18,134 +15,79 @@
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- 项目信息 -->
             <div class="lg:col-span-2 space-y-6">
-              <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h2
-                  class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
-                >
-                  项目详情
-                </h2>
-                <div class="space-y-3">
-                  <div>
-                    <span class="text-sm font-medium text-gray-500"
-                      >描述：</span
-                    >
-                    <p class="text-gray-900 dark:text-white">
-                      {{ projectStore.projectDetail.description || "暂无描述" }}
-                    </p>
-                  </div>
-                  <div class="flex space-x-6">
+              <div>
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                  <h2
+                    class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
+                  >
+                    项目详情
+                  </h2>
+                  <div class="space-y-3">
                     <div>
                       <span class="text-sm font-medium text-gray-500"
-                        >创建时间：</span
+                        >描述：</span
                       >
-                      <span class="text-gray-900 dark:text-white">{{
-                        formatDate(projectStore.projectDetail.createdAt)
-                      }}</span>
+                      <p class="text-gray-900 dark:text-white">
+                        {{
+                          projectStore.projectDetail.description || "暂无描述"
+                        }}
+                      </p>
                     </div>
-                    <div>
-                      <span class="text-sm font-medium text-gray-500"
-                        >更新时间：</span
-                      >
-                      <span class="text-gray-900 dark:text-white">{{
-                        formatDate(projectStore.projectDetail.updatedAt)
-                      }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 项目图片 -->
-              <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h2
-                  class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
-                >
-                  项目图片
-                </h2>
-
-                <div
-                  v-if="projectStore.projectFile.length === 0"
-                  class="text-center py-8"
-                >
-                  <svg
-                    class="w-12 h-12 text-gray-400 mx-auto mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <p class="text-gray-500 dark:text-gray-400">暂无图片</p>
-                </div>
-
-                <div
-                  v-else
-                  class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-                >
-                  <div
-                    v-for="(file, index) in projectStore.projectFile"
-                    :key="file.id"
-                    class="relative group cursor-pointer rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 aspect-square"
-                    @click="openTranslator(file.id, index)"
-                  >
-                    <img
-                      v-if="file.coverUrl"
-                      :src="file.coverUrl"
-                      :alt="file.name"
-                      class="w-full h-full object-cover transition-transform group-hover:scale-105"
-                    />
-                    <div
-                      v-else
-                      class="w-full h-full flex items-center justify-center"
-                    >
-                      <svg
-                        class="w-8 h-8 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-
-                    <!-- Overlay -->
-                    <div
-                      class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center"
-                    >
-                      <div
-                        class="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      >
-                        <svg
-                          class="w-8 h-8 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                    <div class="flex space-x-6">
+                      <div>
+                        <span class="text-sm font-medium text-gray-500"
+                          >创建时间：</span
                         >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                          />
-                        </svg>
+                        <span class="text-gray-900 dark:text-white">{{
+                          formatDate(projectStore.projectDetail.createdAt)
+                        }}</span>
+                      </div>
+                      <div>
+                        <span class="text-sm font-medium text-gray-500"
+                          >更新时间：</span
+                        >
+                        <span class="text-gray-900 dark:text-white">{{
+                          formatDate(projectStore.projectDetail.updatedAt)
+                        }}</span>
                       </div>
                     </div>
+                  </div>
+                </div>
 
-                    <!-- Page Number -->
-                    <div
-                      class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded"
+                <!-- 项目图片 -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                  <h2
+                    class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
+                  >
+                    项目图片
+                  </h2>
+
+                  <div
+                    v-if="projectStore.projectFile.length === 0"
+                    class="text-center py-8"
+                  >
+                    <svg
+                      class="w-12 h-12 text-gray-400 mx-auto mb-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      {{ index + 1 }}
-                    </div>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <p class="text-gray-500 dark:text-gray-400">暂无图片</p>
+                  </div>
+
+                  <div
+                    v-else
+                    v-for="file in projectStore.projectFile"
+                    class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                  >
+                    <ProjectImageCard :file="file" :color_theme_trans="color_theme_trans" :color_theme_check="color_theme_check"/>
                   </div>
                 </div>
               </div>
@@ -449,6 +391,7 @@ import {
 } from "@/utils/permissions";
 import ProjectMembers from "@/components/ProjectMembers.vue";
 import type { ProjectDetail, ProjectRole } from "@/types";
+import ProjectImageCard from "@/components/ProjectImageCard.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -479,6 +422,10 @@ const page_size = 15;
 
 // 项目状态
 const project_status = ref<number[]>([]);
+
+// 颜色主题
+const color_theme_trans = ref<string>("");
+const color_theme_check = ref<string>("");
 
 const isOwner = computed(() => {
   if (!project.value || !authStore.user) return false;
@@ -632,6 +579,10 @@ onMounted(async () => {
     ElMessage.error("不是合法的项目id");
     router.push("/projects");
   }
+
+  // 获取颜色主题
+  color_theme_trans.value = localStorage.getItem("color-theme-trans") || "#3b82f6";
+  color_theme_check.value = localStorage.getItem("color-theme-check") || "#fa5555";
 
   // 获取项目文件
   await projectStore.fetchProjectFiles(projectId);
