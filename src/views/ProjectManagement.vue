@@ -371,6 +371,7 @@
                   v-else
                   :project="detailed_project_page.find(item => item.id === scope.row.id)!"
                   :color_theme="my_filter ? color_theme_2 : color_theme_1"
+                  style="width: 100%;"
                 />
               </template>
             </el-table-column>

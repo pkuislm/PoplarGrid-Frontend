@@ -1,7 +1,6 @@
 <template>
   <div 
     class="file-card"
-    @click="handleCardClick"
   >
     <!-- 图片区域 -->
     <div class="image-container">
@@ -65,7 +64,7 @@
 
 <script setup lang="ts">
 import { ProjectFile } from "@/types";
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { Picture, CollectionTag, EditPen, Select, View } from '@element-plus/icons-vue';
 
 interface Props {
@@ -87,43 +86,37 @@ const checkProgress = computed(() => {
   if (props.file.sourceCount === 0) return 0;
   return (props.file.checkedSourceCount / props.file.sourceCount) * 100;
 });
-
-const emit = defineEmits<{
-  cardClick: [file: ProjectFile];
-}>();
-
-const handleCardClick = () => {
-  emit('cardClick', props.file);
-};
 </script>
 
 <style scoped>
 .file-card {
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 1vw;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #f0f0f0;
+  box-shadow: 0 0.16vw 0.67vw rgba(0, 0, 0, 0.1);
+  border: 0.1vw solid #f0f0f0;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .file-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  transform: translateY(-0.33vw) scale(1.02);
+  box-shadow: 0 1vw 2.67vw rgba(0, 0, 0, 0.15);
   border-color: #000000;
 }
 
 .file-card:active {
-  transform: translateY(-2px) scale(1.01);
+  transform: translateY(-0.16vw) scale(1.01);
   transition: transform 0.1s ease;
 }
 
 .image-container {
   position: relative;
-  height: 140px;
   overflow: hidden;
+  flex: 1;
 }
 
 .card-image {
@@ -145,8 +138,8 @@ const handleCardClick = () => {
   height: 100%;
   background: #f5f7fa;
   color: #909399;
-  font-size: 11px;
-  gap: 6px;
+  font-size: 1vw;
+  gap: 0.5vw;
 }
 
 .hover-overlay {
@@ -169,30 +162,32 @@ const handleCardClick = () => {
 }
 
 .content-area {
-  padding: 12px 16px 5px 16px;
+  padding: 0.8vw 0.8vw 0.3vw 0.8vw;
   background: #ffffff;
 }
 
 .stats-row {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  padding: 0 4px;
+  margin-bottom: 0.67vw;
+  padding: 0 0.3vw;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
+  justify-content: space-between;
+  gap: 0.2vw;
+  font-size: 1vw;
   color: #606266;
-  font-weight: 500;
+  font-weight: 600;
   transition: color 0.2s ease;
 }
 
 .stat-item .el-icon {
-  font-size: 13px;
+  font-size: 1vw;
   transition: transform 0.2s ease;
 }
 
@@ -202,14 +197,14 @@ const handleCardClick = () => {
 
 .progress-container {
   position: relative;
-  height: 16px;
+  height: 1vw;
 }
 
 .progress-bar {
   position: absolute;
   width: 100%;
-  height: 8px;
-  border-radius: 4px;
+  height: 0.5vw;
+  border-radius: 0.25vw;
   overflow: hidden;
 }
 
@@ -225,42 +220,19 @@ const handleCardClick = () => {
 
 .progress-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 0.2vw;
   position: relative;
 }
 
 .translate-fill {
-  box-shadow: 0 2px 4px rgba(103, 194, 58, 0.3);
+  box-shadow: 0 0.1vw 0.25vw rgba(103, 194, 58, 0.3);
 }
 
 .check-fill {
-  box-shadow: 0 2px 4px rgba(64, 158, 255, 0.3);
+  box-shadow: 0 0.1vw 0.25vw rgba(64, 158, 255, 0.3);
 }
 
 .file-card:hover .progress-text {
   opacity: 1;
-}
-
-/* 响应式优化 */
-@media (max-width: 768px) {
-  .image-container {
-    height: 130px;
-  }
-  
-  .stats-row {
-    margin-bottom: 10px;
-  }
-  
-  .stat-item {
-    font-size: 11px;
-  }
-  
-  .content-area {
-    padding: 10px 14px 12px;
-  }
-  
-  .progress-text {
-    font-size: 9px;
-  }
 }
 </style>

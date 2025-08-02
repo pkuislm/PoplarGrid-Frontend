@@ -197,13 +197,15 @@ onMounted(async () => {
 <style scoped>
 .project-detail-container {
   width: 100%;
-  max-width: 1250px;
   margin: 0 auto;
   padding: 20px;
   box-sizing: border-box;
   transform: translateY(-10px);
   opacity: 0;
   animation: expandIn 0.3s ease-out forwards;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 @keyframes expandIn {
@@ -214,7 +216,7 @@ onMounted(async () => {
 }
 
 .project-content {
-  width: 100%;
+  width: 90%;
   background-color: rgba(from var(--project-theme-color) r g b / 0.2);
   border-radius: 12px;
   padding: 24px;

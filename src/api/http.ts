@@ -403,7 +403,7 @@ export const mockApi = {
         id: `project_${projectId}_file_1`,
         name: `文件_${projectId}_1.jpg`,
         coverUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=400',
-        fullUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=800',
+        fullUrl: 'https://ojvpill.gfalpmmgzhxn.hath.network:44444/h/771f3a12279608eb2bc4d32d1878c5abe0940c0d-1687397-4299-6071-png/keystamp=1754149800-b532f83814;fileindex=195059737;xres=org/_024.png',
         sourceCount: 10,
         translatedSourceCount: 8,
         checkedSourceCount: 5
@@ -412,7 +412,7 @@ export const mockApi = {
         id: `project_${projectId}_file_2`,
         name: `文件_${projectId}_2.jpg`,
         coverUrl: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=400',
-        fullUrl: 'https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=800',
+        fullUrl: 'https://cdn.cartoonporn.to/nhentai/storage/images/403324/17.png',
         sourceCount: 12,
         translatedSourceCount: 1,
         checkedSourceCount: 0
@@ -421,7 +421,7 @@ export const mockApi = {
         id: `project_${projectId}_file_3`,
         name: `文件_${projectId}_3.jpg`,
         coverUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=400',
-        fullUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=800',
+        fullUrl: 'https://cdn.cartoonporn.to/nhentai/storage/images/403324/18.png',
         sourceCount: 11,
         translatedSourceCount: 0,
         checkedSourceCount: 0
@@ -430,7 +430,7 @@ export const mockApi = {
         id: `project_${projectId}_file_4`,
         name: `文件_${projectId}_4.jpg`,
         coverUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=400',
-        fullUrl: 'https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=800',
+        fullUrl: 'https://cdn.cartoonporn.to/nhentai/storage/images/403324/19.png',
         sourceCount: 0,
         translatedSourceCount: 0,
         checkedSourceCount: 0
