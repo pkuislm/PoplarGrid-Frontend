@@ -138,7 +138,7 @@
                           :h="imageHeight"
                           :scale="scale"
                           :position-type="tag.position_type"
-                          :content="tag.my_translation.content"
+                          :content="tag.my_translation.content.replace(/\n/g, '<br>')"
           ></TranslationTag>
         </template>
       </TranslatorImage>
