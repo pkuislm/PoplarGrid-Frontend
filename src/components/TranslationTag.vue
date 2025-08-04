@@ -9,19 +9,19 @@ const props = defineProps({
   w: {type: Number, required: true},
   h: {type: Number, required: true},
   id: {type: String, required: true},
-  index: { type: Number, default: 0},
+  index: {type: Number, default: 0},
   scale: {type: Number, default: 1},
-  status: { type: String, default: 'pending' },
-  positionType: { type: Number, default: 0 },
-  allowMove: { type: Boolean, default: true },
-  active: { type: Boolean, default: false },
-  focus: { type: Boolean, default: false },
+  status: {type: String, default: 'pending'},
+  positionType: {type: Number, default: 0},
+  allowMove: {type: Boolean, default: true},
+  active: {type: Boolean, default: false},
+  focus: {type: Boolean, default: false},
   content: String,
-  styleTransition: { type: String, default: 'none' },
-  direction: { type: String, default: 'ltr' },
-  writingMode: { type: String, default: 'vertical-rl' },
-  originDirection: { type: String, default: 'ltr' },
-  originWritingMode: { type: String, default: 'vertical-rl' },
+  styleTransition: {type: String, default: 'none'},
+  direction: {type: String, default: 'ltr'},
+  writingMode: {type: String, default: 'vertical-rl'},
+  originDirection: {type: String, default: 'ltr'},
+  originWritingMode: {type: String, default: 'vertical-rl'},
   className: String,
 })
 const emit = defineEmits(['click', 'drag'])
@@ -55,20 +55,20 @@ const backgroundRGB = computed(() => {
 })
 // 计算小箭头指向点的偏移，使小箭头的尖角为指向点
 const arrowWidth = computed(() => {
-  if(active) {
+  if (active) {
     return 8 * 1.4;
   }
   return 8; // 等腰三角形的底边
 })
 const arrowHeight = computed(() => {
-  if(active) {
+  if (active) {
     return 5 * 1.4;
   }
   return 5; // 等腰三角形的高
 })
 const numberSize = 29; // 数字圆圈的直径
 const numberTop = computed(() => {
-  if(isMobile) {
+  if (isMobile) {
     return -32;// 手机版数字圆圈距离更远，以免小箭头被手挡住
   }
   return -16; // 数字圆圈的偏移
@@ -125,23 +125,23 @@ const arrowClass = computed(() => {
        class="absolute flex top-0 left-0"
   >
     <div
-      :class="rootClasses"
-      :style="{
+        :class="rootClasses"
+        :style="{
           transform:`scale(${myScale}) translateZ(0)`,
           transformOrigin: `bottom`,
           transition: 'none'
         }"
-      @contextmenu.prevent
+        @contextmenu.prevent
     >
-      <div class="Label__FocusRing" />
+      <div class="Label__FocusRing"/>
       <ToolTip :content="tipText" placement="right" :arrow="false" :offset="[-30, 25]">
         <div class="Label__Number" ref="handleElem" @contextmenu.prevent>
-          {{index}}
+          {{ index }}
         </div>
       </ToolTip>
-      <div :class="arrowClass" />
+      <div :class="arrowClass"/>
       <div class="Label__Spin" v-if="saving">
-        <div />
+        <div/>
       </div>
       <div class="Label__ContentWrapper">
       </div>
@@ -152,6 +152,7 @@ const arrowClass = computed(() => {
 <style scoped>
 .Label {
 }
+
 @keyframes focus-ring-animate {
   0% {
     opacity: 0;
@@ -167,6 +168,7 @@ const arrowClass = computed(() => {
     border-width: 2px;
   }
 }
+
 .Label__ContentWrapper {
   display: none;
   position: absolute;
@@ -174,6 +176,7 @@ const arrowClass = computed(() => {
   left: 36px;
   width: 220px;
 }
+
 .Label__Content {
   background-color: #fff;
   border-radius: 4px;
@@ -182,9 +185,11 @@ const arrowClass = computed(() => {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
 .Label__Content--empty {
   color: #999;
 }
+
 .Label__FocusRing {
   display: none;
   position: absolute;
@@ -197,15 +202,18 @@ const arrowClass = computed(() => {
   border-radius: 50%;
   animation: focus-ring-animate 2s linear infinite normal;
 }
+
 .Label--focus .Label__Number {
   top: -16px;
   background-color: rgba(v-bind('backgroundRGB'), 1);
   border: 2px solid #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
+
 .Label--focus .Label__FocusRing {
   display: block;
 }
+
 .Label__Number {
   position: absolute;
   top: -16px;
@@ -225,41 +233,49 @@ const arrowClass = computed(() => {
   font-family: sans-serif;
   cursor: pointer;
 }
+
 .Label__Arrow {
   position: absolute;
   top: -4px;
   left: -4px;
 }
+
 .Label__Arrow--bottom {
   border-style: solid;
   border-width: 5px 4px 0 4px;
   border-color: #1890ff transparent transparent transparent;
 }
+
 .Label__Arrow--left {
   border-style: solid;
   border-width: 4px 5px 4px 0;
   border-color: transparent #1890ff transparent transparent;
 }
+
 .Label__Arrow--right {
   border-style: solid;
   border-width: 4px 0 4px 5px;
   border-color: transparent transparent transparent #1890ff;
 }
+
 .Label__Spin {
   display: none;
   position: absolute;
   left: -9px;
   top: -12px;
 }
+
 .Label--saving .Label__Spin {
   display: block;
 }
+
 @media (pointer: fine) {
   .Label:hover .Label__Number {
     top: -16px;
     background-color: rgba(v-bind('backgroundRGB'), 1);
     border: 2px solid #fff;
   }
+
   .Label:hover .Label__ContentWrapper {
     display: flex;
   }

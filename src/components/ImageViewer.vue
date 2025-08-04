@@ -39,7 +39,7 @@
           <button class="px-[1vw] py-[0.8vw] text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
                   @click="() => { }"
           >
-            <div>100/110</div>
+            100/110
           </button>
           <ToolTip content="下一页">
             <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
@@ -148,7 +148,7 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
 import ToolTip from "./ToolTip.vue"
-import {ArrowLeftBold, CaretLeft, CaretRight, Refresh, Tools, ZoomIn} from "@element-plus/icons-vue"
+import {ArrowLeftBold, CaretLeft, CaretRight, Rank, Refresh, Tools, ZoomIn, ZoomOut} from "@element-plus/icons-vue"
 import TranslationTag from "./TranslationTag.vue";
 import TranslatorImage from "@/components/TranslatorImage.vue";
 import {useMovable} from "@/utils/movable.ts";
@@ -196,7 +196,7 @@ const isToolbarActive = ref(false)
 let toolbarTimer: any = null
 const toolbarMouseEnter = () => {
   isToolbarActive.value = true
-  if(toolbarTimer) {
+  if (toolbarTimer) {
     clearTimeout(toolbarTimer)
     toolbarTimer = null
   }

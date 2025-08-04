@@ -1,23 +1,23 @@
 <template>
   <span ref="tooltipRef">
-    <slot />
+    <slot/>
   </span>
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import {onMounted, onBeforeUnmount, ref, watch} from 'vue'
 import tippy from 'tippy.js'
 import 'tippy.js/dist/tippy.css'
 import 'tippy.js/animations/scale-subtle.css';
 
 const props = defineProps({
-  content: { type: [String, Object], required: true },
-  arrow: { type:[String, Boolean], default:true },
-  placement: { type: String, default: 'auto' },
-  animation: { type: String, default: 'scale-subtle' },
-  theme: { type: String, default: 'translucent' },
-  trigger: { type: String, default: 'mouseenter focus' },
-  allowHTML: { type: Boolean, default: true },
+  content: {type: [String, Object], required: true},
+  arrow: {type: [String, Boolean], default: true},
+  placement: {type: String, default: 'auto'},
+  animation: {type: String, default: 'scale-subtle'},
+  theme: {type: String, default: 'translucent'},
+  trigger: {type: String, default: 'mouseenter focus'},
+  allowHTML: {type: Boolean, default: true},
   offset: {type: [Number, Number], default: [0, 20]},
   duration: {type: [Number, Number], default: [0, 100]}
 })
@@ -49,8 +49,8 @@ function createTooltip() {
       arrow: props.arrow,
       trigger: props.trigger,
       allowHTML: props.allowHTML,
-      offset:props.offset,
-      duration:props.duration
+      offset: props.offset,
+      duration: props.duration
     })
   }
 }
