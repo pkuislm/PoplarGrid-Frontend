@@ -4,7 +4,61 @@
     错误：{{ error }}
   </div>
   <div v-else>
-    <ImageViewer :imageUrl="imageUrl" :initialMarks="markerData"/>
+    <div ref="container" class="w-100vw h-100vh block bg-gray-500 fixed inset-0">
+      <div class="absolute inset-0 flex top-0 left-0 items-stretch">
+        <div class="translator-nav-back absolute top-[2vh] left-[2vh] z-50">
+          <div class="flex bg-white/80 rounded overflow-hidden shadow-xl">
+            <ToolTip content="返回">
+              <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
+                      @click="goBack"
+              >
+                <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+                  <ArrowLeftBold/>
+                </el-icon>
+              </button>
+            </ToolTip>
+            <ToolTip content="设置">
+              <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
+                      @click="() => {  }"
+              >
+                <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+                  <Tools/>
+                </el-icon>
+              </button>
+            </ToolTip>
+          </div>
+        </div>
+        <div class="translator-nav-page absolute top-[2vh] right-[2vh] z-50">
+          <div class="flex bg-white/80 rounded overflow-hidden shadow-xl">
+            <ToolTip content="上一页">
+              <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
+                      @click="() => {  }"
+              >
+                <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+                  <CaretLeft/>
+                </el-icon>
+              </button>
+            </ToolTip>
+            <button
+                class="px-[1vw] py-[0.8vw] text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
+                @click="() => { }"
+            >
+              100/110
+            </button>
+            <ToolTip content="下一页">
+              <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
+                      @click="() => {  }"
+              >
+                <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+                  <CaretRight/>
+                </el-icon>
+              </button>
+            </ToolTip>
+          </div>
+        </div>
+        <ImageViewer :imageUrl="imageUrl" :initialMarks="markerData"/>
+      </div>
+    </div>
   </div>
 </template>
 <style>
@@ -28,6 +82,8 @@ main {
 import {computed, onMounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import ImageViewer from "@/components/ImageViewer.vue";
+import {ArrowLeftBold, CaretLeft, CaretRight, Tools} from "@element-plus/icons-vue";
+import ToolTip from "@/components/ToolTip.vue";
 
 const route = useRoute()
 const router = useRouter()
