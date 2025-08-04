@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {nextTick, ref, watch} from "vue";
+import {nextTick, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {useMovable} from "@/utils/movable.ts";
 
 const props = defineProps({
@@ -46,7 +46,7 @@ const onImageLoaded = () => {
 
   imageScaleByY = parentRect.height / imageHeight.value
   imageScaleByX = parentRect.width / imageWidth.value
-  transform.scale = imageScaleByX
+  transform.scale = imageScaleByY
 }
 
 const resetImagePosition = () => {
@@ -63,11 +63,37 @@ watch(() => props.scale, val => {
   transform.scale = val
 })
 
-watch(() => transform.scale, newScale => {
+function debounce(fn: any, delay: number) {
+  let timer: any
+  return (...args: any[]) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => fn(...args), delay)
+  }
+}
+
+const updateSize = debounce(() => {
+  recalculateResetPos(transform.scale)
+}, 100)
+
+onMounted(() => {
+  window.addEventListener('resize', updateSize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateSize)
+})
+
+const recalculateResetPos = (scale: number) => {
   const parentRect = container.value?.parentElement?.getBoundingClientRect()
   if (imageWidth.value == 0 || imageHeight.value == 0 || !parentRect) return
-  imageResetPos.x = (parentRect.width - imageWidth.value * newScale) / 2
-  imageResetPos.y = (parentRect.height - imageHeight.value * newScale) / 2
+  imageResetPos.x = (parentRect.width - imageWidth.value * scale) / 2
+  imageResetPos.y = (parentRect.height - imageHeight.value * scale) / 2
+  imageScaleByY = parentRect.height / imageHeight.value
+  imageScaleByX = parentRect.width / imageWidth.value
+}
+
+watch(() => transform.scale, newScale => {
+  recalculateResetPos(newScale)
   // 首次加载
   if (firstLoad) {
     firstLoad = false
@@ -98,7 +124,3 @@ watch(() => transform.scale, newScale => {
     <slot :scale="transform.scale" :imageWidth="imageWidth" :imageHeight="imageHeight"/>
   </div>
 </template>
-
-<style scoped>
-
-</style>

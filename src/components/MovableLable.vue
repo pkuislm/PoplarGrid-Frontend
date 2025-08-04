@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import ToolTip from "./ToolTip.vue";
+import ToolTip from "@/components/ToolTip.vue";
 import {computed, ref, watch} from "vue";
 import {useMovable} from "@/utils/movable.ts";
 
@@ -91,7 +91,6 @@ const savingStatuses = ['saving', 'syncing', 'uploading'] // 对应原来的 lab
 const saving = computed(() => savingStatuses.includes(props.status))
 // 样式类和动态 style
 const rootClasses = computed(() => [
-  isDragging ? 'cursor-grabbing' : 'cursor-grab',
   'Label',
   {
     'Label--focus': props.focus,
