@@ -129,15 +129,16 @@
         <template #default="{ scale, imageWidth, imageHeight }">
           <TranslationTag v-if="imageLoaded"
                           class="absolute"
-                          v-for="tag in props.initialMarks"
+                          v-for="(tag, index) in props.initialMarks"
                           :id="tag.id"
-                          :x="tag.x"
-                          :y="tag.y"
+                          :index="index + 1"
+                          :x="tag.x * imageWidth"
+                          :y="tag.y * imageHeight"
                           :w="imageWidth"
                           :h="imageHeight"
                           :scale="scale"
-                          :position-type="tag.positionType"
-                          :content="tag.myTranslation.content"
+                          :position-type="tag.position_type"
+                          :content="tag.my_translation.content"
           ></TranslationTag>
         </template>
       </TranslatorImage>

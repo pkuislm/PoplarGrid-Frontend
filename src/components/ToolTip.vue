@@ -18,8 +18,8 @@ const props = defineProps({
   theme: {type: String, default: 'translucent'},
   trigger: {type: String, default: 'mouseenter focus'},
   allowHTML: {type: Boolean, default: true},
-  offset: {type: [Number, Number], default: [0, 20]},
-  duration: {type: [Number, Number], default: [0, 100]}
+  offset: {type: Array, default: [0, 20]},
+  duration: {type: Array, default: [0, 100]}
 })
 
 const tooltipRef = ref(null)
