@@ -17,7 +17,9 @@ const props = defineProps({
   animation: { type: String, default: 'scale-subtle' },
   theme: { type: String, default: 'translucent' },
   trigger: { type: String, default: 'mouseenter focus' },
-  allowHTML: { type: Boolean, default: true }
+  allowHTML: { type: Boolean, default: true },
+  offset: {type: [Number, Number], default: [0, 20]},
+  duration: {type: [Number, Number], default: [0, 100]}
 })
 
 const tooltipRef = ref(null)
@@ -44,10 +46,11 @@ function createTooltip() {
       placement: props.placement,
       animation: props.animation,
       theme: props.theme,
+      arrow: props.arrow,
       trigger: props.trigger,
       allowHTML: props.allowHTML,
-      offset:[0, 20],
-      duration:[0, 100]
+      offset:props.offset,
+      duration:props.duration
     })
   }
 }
