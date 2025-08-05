@@ -1,63 +1,75 @@
 <template>
-  <div v-if="loading">加载中...</div>
-  <div v-else-if="error" class="text-red-600">
-    错误：{{ error }}
-  </div>
-  <div v-else>
-    <div ref="container" class="w-100vw h-100vh block bg-gray-500 fixed inset-0">
-      <div class="absolute inset-0 flex top-0 left-0 items-stretch">
-        <div class="translator-nav-back absolute top-[2vh] left-[2vh] z-50">
-          <div class="flex bg-white/80 rounded overflow-hidden shadow-xl">
-            <ToolTip content="返回">
-              <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
-                      @click="goBack"
-              >
-                <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
-                  <ArrowLeftBold/>
-                </el-icon>
-              </button>
-            </ToolTip>
-            <ToolTip content="设置">
-              <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
-                      @click="() => {  }"
-              >
-                <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
-                  <Tools/>
-                </el-icon>
-              </button>
-            </ToolTip>
-          </div>
-        </div>
-        <div class="translator-nav-page absolute top-[2vh] right-[2vh] z-50">
-          <div class="flex bg-white/80 rounded overflow-hidden shadow-xl">
-            <ToolTip content="上一页">
-              <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
-                      @click="() => {  }"
-              >
-                <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
-                  <CaretLeft/>
-                </el-icon>
-              </button>
-            </ToolTip>
-            <button
-                class="px-[1vw] py-[0.8vw] text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
-                @click="() => { }"
+  <div ref="container" class="w-100vw h-100vh block bg-gray-500 fixed inset-0">
+    <div class="absolute inset-0 flex top-0 left-0 items-stretch">
+      <div class="translator-nav-back absolute top-[2vh] left-[2vh] z-50">
+        <div class="flex bg-white/80 rounded overflow-hidden shadow-xl">
+          <ToolTip content="返回">
+            <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
+                    @click="goBack"
             >
-              100/110
+              <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+                <ArrowLeftBold/>
+              </el-icon>
             </button>
-            <ToolTip content="下一页">
-              <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
-                      @click="() => {  }"
-              >
-                <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
-                  <CaretRight/>
-                </el-icon>
-              </button>
-            </ToolTip>
-          </div>
+          </ToolTip>
+          <ToolTip content="设置">
+            <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
+                    @click="() => {  }"
+            >
+              <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+                <Tools/>
+              </el-icon>
+            </button>
+          </ToolTip>
         </div>
-        <ImageViewer :imageUrl="imageUrl" :initialMarks="markerData"/>
       </div>
+      <div class="translator-nav-page absolute top-[2vh] right-[2vh] z-50">
+        <div class="flex bg-white/80 rounded overflow-hidden shadow-xl">
+          <ToolTip content="上一页">
+            <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
+                    @click="() => {  }"
+            >
+              <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+                <CaretLeft/>
+              </el-icon>
+            </button>
+          </ToolTip>
+          <button
+              class="px-[1vw] py-[0.8vw] text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
+              @click="() => { }"
+          >
+            100/110
+          </button>
+          <ToolTip content="下一页">
+            <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
+                    @click="() => {  }"
+            >
+              <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+                <CaretRight/>
+              </el-icon>
+            </button>
+          </ToolTip>
+        </div>
+      </div>
+      <div v-if="loading" class="w-full h-full flex items-center justify-center">
+        <div style="text-align: center">
+          <el-icon class="is-loading" size="5vw">
+            <Loading/>
+          </el-icon>
+          <br/>
+          <b>正在加载翻译器</b>
+        </div>
+      </div>
+      <div v-else-if="error" class="text-red-600 w-full h-full flex items-center justify-center">
+        <div style="text-align: center">
+          <el-icon size="5vw">
+            <WarnTriangleFilled/>
+          </el-icon>
+          <br/>
+          <b>翻译器加载失败：{{ error }}</b>
+        </div>
+      </div>
+      <ImageViewer v-else :imageUrl="imageUrl" :initialMarks="markerData"/>
     </div>
   </div>
 </template>
