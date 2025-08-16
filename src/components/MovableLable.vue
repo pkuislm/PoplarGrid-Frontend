@@ -2,6 +2,8 @@
 import ToolTip from "@/components/ToolTip.vue";
 import {computed, ref, watch} from "vue";
 import {useMovable} from "@/utils/movable.ts";
+import 'tippy.js/dist/tippy.css'
+import 'tippy.js/animations/scale-subtle.css';
 
 const props = defineProps({
   x: {type: Number, required: true},
@@ -24,20 +26,43 @@ const props = defineProps({
   originWritingMode: {type: String, default: 'vertical-rl'},
   className: String,
 })
-const emit = defineEmits(['click', 'drag'])
+const emit = defineEmits(['tag-event'])
 const tipText = ref(props.content)
 watch(() => props.content, (newVal) => {
   tipText.value = newVal
 })
 const myScale = computed(() => 1 / props.scale)
 const handleElem = ref()
+let contextMenuTimer: any = null
+let contextMenuVisible = false
+
 const {transform, isDragging} = useMovable(handleElem, {
   initialX: props.x,
   initialY: props.y,
   accelerateFactor: myScale,
   transformOrigin: "bottom",
-  click: (e: MouseEvent) => emit('click', props.id, e),
-  drag: (e: MouseEvent, x: number, y: number) => emit('drag', props.id, e, x, y),
+  click: (e: MouseEvent) => {
+    if (!contextMenuVisible) {
+      emit('tag-event', 'click', props.id, e)
+    }
+  },
+  drag: (e: MouseEvent, x: number, y: number) => emit('tag-event', 'drag', props.id, e, x, y),
+  mousedown: (e: MouseEvent) => {
+    if (e.button === 2) {
+      contextMenuTimer = setTimeout(() => {
+        //TODO: ContextMenuPopup
+        contextMenuVisible = true
+        console.log('contextmenu popup')
+        contextMenuTimer = null
+      }, 800)
+    }
+  },
+  mouseup: (e: MouseEvent) => {
+    if (contextMenuTimer) {
+      clearTimeout(contextMenuTimer)
+      contextMenuTimer = null
+    }
+  },
   constraints: {
     minX: 0,
     maxX: props.w,
