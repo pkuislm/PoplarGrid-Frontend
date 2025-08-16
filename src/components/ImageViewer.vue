@@ -8,7 +8,7 @@
         ref="floatBarHandle"
         :class="isDragging ? 'cursor-grabbing' : 'cursor-grab'"
     >
-      <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+      <el-icon class="text-gray-600 align-middle flex m-3" size="25px">
         <Rank/>
       </el-icon>
     </div>
@@ -17,7 +17,7 @@
         <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
                 @click="() => { if(imageScale<5) imageScale+=0.1 }"
         >
-          <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+          <el-icon class="text-gray-600 align-middle flex m-3" size="25px">
             <ZoomIn/>
           </el-icon>
         </button>
@@ -26,7 +26,7 @@
         <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
                 @click="() => { if(imageScale-0.1>0.1) imageScale-=0.1 }"
         >
-          <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+          <el-icon class="text-gray-600 align-middle flex m-3" size="25px">
             <ZoomOut/>
           </el-icon>
         </button>
@@ -37,13 +37,13 @@
           max="5"
           step="0.1"
           v-model.number="imageScale"
-          class="accent-neutral-400 zoom-slider m-[1vw]"
+          class="accent-neutral-400 zoom-slider m-3"
       >
       <ToolTip content="重置图片位移">
         <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
                 @click="imageElement.resetPosition"
         >
-          <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+          <el-icon class="text-gray-600 align-middle flex m-3" size="25px">
             <Refresh/>
           </el-icon>
         </button>
@@ -52,7 +52,7 @@
         <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
                 @click="imageElement.resetScaleByX"
         >
-          <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+          <el-icon class="text-gray-600 align-middle flex m-3" size="25px">
             <ZoomIn/>
           </el-icon>
         </button>
@@ -61,7 +61,7 @@
         <button class="text-gray-800 hover:bg-gray-600/50 active:text-gray-300 transition-colors"
                 @click="imageElement.resetScaleByY"
         >
-          <el-icon class="text-gray-600 align-middle flex m-[1vw]" size="2vw">
+          <el-icon class="text-gray-600 align-middle flex m-3" size="25px">
             <ZoomIn/>
           </el-icon>
         </button>
@@ -84,6 +84,7 @@
                       :w="imageWidth"
                       :h="imageHeight"
                       :scale="scale"
+                      @tag-event="(...args:any[]) => { console.log(args) }"
                       :position-type="tag.position_type"
                       :content="tag.my_translation ? tag.my_translation.content.replace(/\n/g, '<br>') : tag.translations[0].content.replace(/\n/g, '<br>')"
       ></TranslationTag>
@@ -136,7 +137,12 @@ const toolbarMouseLeave = () => {
 
 const props = defineProps({
   imageUrl: {type: String, required: true},
-  initialMarks: {type: Array<Source>, default: () => []} // 标记数组
+  initialMarks: {type: Array<Source>, required: true} // 标记数组
+})
+defineExpose({
+  onLayoutChanged: () => {
+    imageElement.value.onLayoutChanged()
+  }
 })
 
 const imageLoaded = ref(false)
