@@ -15,7 +15,6 @@
         :aria-orientation="orientation"
         tabindex="0"
         @pointerdown="onPointerDown"
-        @keydown="onKeyDown"
     />
 
     <div class="pane second" :style="secondPaneStyle">
@@ -31,15 +30,15 @@ const props = withDefaults(defineProps<{
   modelValue?: number
   defaultRatio?: number
   minFirst?: number
-  maxFirst?: number
+  minSecond?: number
   gutter?: number
   persistKey?: string | null
   orientation?: 'horizontal' | 'vertical'
 }>(), {
   modelValue: undefined,
-  defaultRatio: 0.35,
-  minFirst: 0.1,
-  maxFirst: 0.9,
+  defaultRatio: 0.75,
+  minFirst: 10,
+  minSecond: 10,
   gutter: 4,
   persistKey: null,
   orientation: 'horizontal'
@@ -50,19 +49,20 @@ const emit = defineEmits(['update:modelValue', 'change'])
 const root = ref<HTMLDivElement | null>(null)
 const containerSize = ref(0)
 const ratio = ref<number>(props.defaultRatio)
+const minRatioFirst = computed(() => props.minFirst / containerSize.value)
+const minRatioSecond = computed(() => props.minSecond / containerSize.value)
 
 onMounted(() => {
   const stored = props.persistKey ? localStorage.getItem(keyName()) : null
+  updateContainerSize()
   if (stored != null) {
-    const v = clamp(parseFloat(stored), props.minFirst, props.maxFirst)
+    const v = clamp(parseFloat(stored), minRatioFirst.value, 1 - (minRatioSecond.value))
     ratio.value = Number.isFinite(v) ? v : props.defaultRatio
   } else if (typeof props.modelValue === 'number') {
-    ratio.value = clamp(props.modelValue, props.minFirst, props.maxFirst)
+    ratio.value = clamp(props.modelValue, minRatioFirst.value, 1 - (minRatioSecond.value))
   } else {
-    ratio.value = clamp(props.defaultRatio, props.minFirst, props.maxFirst)
+    ratio.value = clamp(props.defaultRatio, minRatioFirst.value, 1 - (minRatioSecond.value))
   }
-
-  updateContainerSize()
   ro = new ResizeObserver(updateContainerSize)
   root.value && ro.observe(root.value)
 })
@@ -76,7 +76,7 @@ onBeforeUnmount(() => {
 
 watch(() => props.modelValue, (v) => {
   if (typeof v === 'number' && dragging.value === false) {
-    ratio.value = clamp(v, props.minFirst, props.maxFirst)
+    ratio.value = clamp(v, minRatioFirst.value, 1 - (minRatioSecond.value))
   }
 })
 
@@ -142,35 +142,14 @@ function onPointerMove(e: PointerEvent) {
   const currentPos = props.orientation === 'horizontal' ? e.clientX : e.clientY
   const delta = currentPos - startPos
   const newSize = startFirstSize + delta
-  const usableSize = Math.max(1, containerSize.value)
-  const newRatio = clamp(newSize / usableSize, props.minFirst, props.maxFirst)
+
+  const newRatio = clamp(newSize / containerSize.value, minRatioFirst.value, 1 - minRatioSecond.value)
   ratio.value = newRatio
 }
 
 function onPointerUp() {
   dragging.value = false
   removeGlobalListeners()
-}
-
-function onKeyDown(e: KeyboardEvent) {
-  const step = e.shiftKey ? 0.05 : 0.01
-  if (props.orientation === 'horizontal') {
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault()
-      ratio.value = clamp(ratio.value - step, props.minFirst, props.maxFirst)
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault()
-      ratio.value = clamp(ratio.value + step, props.minFirst, props.maxFirst)
-    }
-  } else {
-    if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      ratio.value = clamp(ratio.value - step, props.minFirst, props.maxFirst)
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      ratio.value = clamp(ratio.value + step, props.minFirst, props.maxFirst)
-    }
-  }
 }
 
 function addGlobalListeners() {
@@ -209,48 +188,66 @@ function removeGlobalListeners() {
 }
 
 .gutter {
-  background-clip: padding-box;
+  background: transparent;
   position: relative;
 }
 
 .horizontal .gutter {
-  width: var(--gutter);
+  width: 0; /* 视觉上消失 */
   cursor: col-resize;
+  height: 100%; /* 撑满容器高度 */
+  position: relative;
 }
 
 .vertical .gutter {
-  height: var(--gutter);
+  height: 0; /* 视觉上消失 */
   cursor: row-resize;
-  width: 100%; /* 占满宽度，让竖向分隔条更长 */
+  width: 100%; /* 撑满容器宽度 */
+  position: relative;
 }
 
-.gutter::before {
+/* 横向模式：左右各扩展一半 */
+.horizontal .gutter::after {
+  z-index: 9999;
   content: '';
   position: absolute;
-  background: currentColor;
-  opacity: 0.5;
-}
-
-.horizontal .gutter::before {
   top: 0;
   bottom: 0;
-  left: calc(50% - 1px);
-  width: 2px;
+  left: -3px;
+  right: -3px;
+  transition: background-color ease-in 0.5s;
 }
 
-.vertical .gutter::before {
+.horizontal .gutter:hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -3px;
+  right: -3px;
+  background-color: #9ca3af;
+  transition: background-color ease-in 0.5s;
+}
+
+.vertical .gutter::after {
+  z-index: 9999;
+  content: '';
+  position: absolute;
   left: 0;
   right: 0;
-  top: calc(50% - 1px);
-  height: 2px;
+  top: -4px;
+  bottom: -4px;
+  transition: background-color ease-in 0.5s;
 }
 
-.gutter {
-  color: #c9c9c9;
-}
-
-.gutter:hover, .gutter:focus-visible {
-  color: #7c7c7c;
-  outline: none;
+.vertical .gutter:hover::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -4px;
+  bottom: -4px;
+  background-color: #9ca3af;
+  transition: background-color ease-in 0.5s;
 }
 </style>

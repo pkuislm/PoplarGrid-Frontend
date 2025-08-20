@@ -1,6 +1,7 @@
 <template>
   <div ref="container" class="w-full h-full block bg-gray-500 fixed inset-0">
-    <split-view persist-key="translator" @change="() => {imageViewer?.onLayoutChanged()}">
+    <split-view persist-key="translator" @change="imageViewer?.onLayoutChanged" :min-first="380" :min-second="280"
+                gutter-color="#00000000">
       <template #first>
         <div class="relative w-full h-full overflow-hidden">
           <div class="translator-nav-back absolute top-[2vh] left-[2vh] z-50">

@@ -86,7 +86,7 @@
                       :scale="scale"
                       @tag-event="(...args:any[]) => { console.log(args) }"
                       :position-type="tag.position_type"
-                      :content="tag.my_translation ? tag.my_translation.content.replace(/\n/g, '<br>') : tag.translations[0].content.replace(/\n/g, '<br>')"
+                      :content="tag.my_translation ? tag.my_translation.content : tag.translations[0].content"
       ></TranslationTag>
     </template>
   </TranslatorImage>
